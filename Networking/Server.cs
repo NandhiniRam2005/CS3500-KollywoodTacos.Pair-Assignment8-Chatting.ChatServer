@@ -5,6 +5,8 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Xml.Schema;
 
 namespace CS3500.Networking;
 
@@ -26,7 +28,18 @@ public static class Server
     /// <param name="port"> The port (e.g., 11000) to listen on. </param>
     public static void StartServer( Action<NetworkConnection> handleConnect, int port )
     {
-        // TODO: Implement this
-        throw new NotImplementedException();
+        TcpListener server = new(IPAddress.Any, port);
+        server.Start();
+        
+        while (true)
+        {
+            
+            TcpClient client = server.AcceptTcpClient();
+            NetworkConnection connection = new NetworkConnection( client );
+            Thread newClient = new Thread(() => handleConnect(connection));
+            newClient.Start();
+        }
+
+        //throw new NotImplementedException();
     }
 }

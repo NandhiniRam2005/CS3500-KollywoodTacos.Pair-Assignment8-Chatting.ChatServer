@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @using CS3500.Networking
 @using System.Text
+@inject ILogger<ChatClient> Logger;
+@inject IJSRuntime JS;
 
 
 <PageTitle>Chat Client</PageTitle>
@@ -90,6 +92,7 @@
     private void DisconnectFromServer()
     {
         network.Disconnect();
+        Logger.LogInformation("A user has disconnected from the server.");
         network = new();
     }
 
@@ -102,7 +105,10 @@
     {
         try
         {
+            Logger.LogDebug("Entering the Connect method");
             network.Connect( ServerNameOrAddress, ServerPort );
+            Logger.LogDebug("Exited the connect method successfully.");
+            Logger.LogInformation("A user has connected to the server.");
 
             // Communicating with the server needs to be asynchronous so that the UI thread 
             // can continue drawing.
@@ -112,7 +118,9 @@
                 {
                     try
                     {
+                        Logger.LogDebug("Entering the ReadLine method");
                         var message = network.ReadLine();
+                        Logger.LogDebug("Exited the ReadLine method successfully");
 
                         message = $"{DateTime.Now:HH:mm tt} - {message}";
                         AllMessages.Insert( 0, message );
@@ -123,7 +131,10 @@
                     }
                     catch
                     {
-                        
+                        Logger.LogDebug("Entering the disconnect method");
+                        network.Disconnect();
+                        Logger.LogDebug("Exited the disconnect method succesfully");
+                        Logger.LogInformation("A user has disconnected from the chatroom.");
                         // add anything needed here to handle a disconnection from the server
                     }
                 }
@@ -145,7 +156,10 @@
     {
         if ( e.Value != null )
         {
+            Logger.LogDebug("Entering send method");
             network.Send( $"{e.Value}" );
+            Logger.LogDebug("Exited send method successfully");
+            Logger.LogInformation("A message has been sent "+$"{e.Value}");
         }
     }
 
@@ -154,6 +168,7 @@
     /// </summary>
     protected override void OnInitialized()
     {
+        Logger.LogInformation("Program Started");
         base.OnInitialized();
         network = new();
     }

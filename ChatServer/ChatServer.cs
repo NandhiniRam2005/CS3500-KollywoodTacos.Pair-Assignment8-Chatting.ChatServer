@@ -3,6 +3,7 @@
 // </copyright>
 
 using CS3500.Networking;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Data;
 using System.Globalization;

@@ -90,6 +90,7 @@
     private void DisconnectFromServer()
     {
         network.Disconnect();
+        network = new();
     }
 
     /// <summary>
@@ -122,6 +123,7 @@
                     }
                     catch
                     {
+                        
                         // add anything needed here to handle a disconnection from the server
                     }
                 }

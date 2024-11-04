@@ -84,14 +84,12 @@ public sealed class NetworkConnection : IDisposable
             _tcpClient.Connect(host, port);
             _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
             _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
-            
+
         }
         catch
         {
 
         }
-        // TODO: implement this
-        //throw new NotImplementedException();
     }
 
 
@@ -137,18 +135,17 @@ public sealed class NetworkConnection : IDisposable
         {
             string? message = string.Empty;
 
-            if (_reader != null)
+
+            if (!IsConnected)
             {
-                if (!IsConnected)
-                {
-                    throw new InvalidOperationException();
-                }
-                message = _reader.ReadLine();
-                if (message == null)
-                {
-                    throw new InvalidOperationException();
-                }
+                throw new InvalidOperationException();
             }
+            message = _reader!.ReadLine();
+            if (message == null)
+            {
+                throw new InvalidOperationException();
+            }
+
 
             return message;
         }

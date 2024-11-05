@@ -6,6 +6,7 @@ namespace CS3500.Chatting;
 
 using CS3500.Networking;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.ComponentModel;
 using System.Data;
 using System.Globalization;
@@ -36,6 +37,8 @@ using System.Text;
 /// </summary>
 public partial class ChatServer
 {
+    private static readonly ILogger<ChatServer>? _logger;
+
     /// <summary>
     /// All the connections to our Chat Server.
     /// </summary>
@@ -45,6 +48,17 @@ public partial class ChatServer
     /// All the temporary connections to our chat server. It is used to provide a better way of locking.
     /// </summary>
     private static HashSet<NetworkConnection> tempConnections = new HashSet<NetworkConnection>();
+
+    static ChatServer()
+    {
+        using var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole(); // JIM: must nuget add Microsoft.Extensions.Logging.Console and Debug
+            builder.AddDebug();
+            builder.SetMinimumLevel(LogLevel.Trace);
+        });
+        _logger = loggerFactory.CreateLogger<ChatServer>();
+    }
 
     /// <summary>
     ///   The main program.
@@ -66,10 +80,13 @@ public partial class ChatServer
     private static void HandleConnect(NetworkConnection connection)
     {
         // handle all messages until disconnect.
+        _logger?.LogDebug("Locking connections backing storage.");
         lock (connections)
         {
             connections.Add(connection);
         }
+
+        _logger?.LogDebug("Unlocked connections backing storage.");
 
         bool firstMessage = true;
         string userName = string.Empty;
@@ -83,13 +100,18 @@ public partial class ChatServer
                 {
                     userName = message ?? throw new InvalidOperationException();
                     firstMessage = false;
-                    BroadcastMessage("SERVER: " + userName + " has entered the chatroom");
+                    _logger?.LogInformation(userName + " has joined the server!");
+                    _logger?.LogInformation("Broadcasting message to clients");
+                    BroadcastMessage("SERVER: " + userName + " has entered the chat room");
+                    _logger?.LogInformation("Successfully broad casted message to clients");
                     continue;
                 }
 
                 string fullMessage = userName + ": " + message;
 
                 tempConnections = new HashSet<NetworkConnection>();
+
+                _logger?.LogDebug("Locking connections backing storage.");
                 lock (connections)
                 {
                     foreach (NetworkConnection connectionInList in connections)
@@ -98,16 +120,25 @@ public partial class ChatServer
                     }
                 }
 
+                _logger?.LogDebug("Unlocked connections backing storage.");
+                _logger?.LogInformation($"Broadcasting message: {fullMessage} from {userName} to clients");
                 BroadcastMessage(fullMessage);
+                _logger?.LogInformation("Successfully broad casted message to clients");
             }
         }
         catch (Exception)
         {
+            _logger?.LogWarning("Client has disconnected and messages could not be sent.");
+            _logger?.LogDebug("Attempting to disconnect connection to said client.");
             connection.Disconnect();
+            _logger?.LogDebug("Successfully disconnected connection to said client.");
+            _logger?.LogDebug("Locking connections backing storage.");
             lock (connections)
             {
                 connections.Remove(connection);
             }
+
+            _logger?.LogDebug("Unlocked connections backing storage.");
         }
     }
 

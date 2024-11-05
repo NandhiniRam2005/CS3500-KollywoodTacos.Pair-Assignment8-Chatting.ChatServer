@@ -36,6 +36,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 public sealed class NetworkConnection : IDisposable
 {
     /// <summary>
+    /// The logger which will be used to log our logging for logging purposes (particularly for logging and logging other things).
+    /// </summary>
+    private readonly ILogger<NetworkConnection> _logger;
+
+    /// <summary>
     ///   The connection/socket abstraction.
     /// </summary>
     private TcpClient _tcpClient = new();
@@ -59,9 +64,11 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="tcpClient">
     ///   An already existing TcpClient.
     /// </param>
-    /// /// <param name="logger"> The logging interface. </param>
+    /// <param name="logger"> The logging interface. </param>
     public NetworkConnection(TcpClient tcpClient, ILogger logger)
     {
+        _logger = (ILogger<NetworkConnection>?)logger ?? throw new InvalidOperationException();
+
         _tcpClient = tcpClient;
         if (IsConnected)
         {
@@ -72,13 +79,16 @@ public sealed class NetworkConnection : IDisposable
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="NetworkConnection"/> class.
-    ///   <para>
-    ///     Create a network connection object.  The tcpClient will be unconnected at the start.
-    ///   </para>
+    /// Initializes a new instance of the <see cref="NetworkConnection"/> class.
     /// </summary>
-    public NetworkConnection()
-        : this(new TcpClient(), new NullLogger<NetworkConnection>())
+    /// <para>
+    /// Create a NetworkConnection object. The TCP client will be unconnected at the start.
+    /// </para>
+    /// <param name="logger">
+    /// The logging interface.
+    /// </param>
+    public NetworkConnection(ILogger logger)
+        : this(new TcpClient(), logger)
     {
     }
 
@@ -102,7 +112,9 @@ public sealed class NetworkConnection : IDisposable
     {
         try
         {
+            _logger.LogDebug("Attempting to connect to host and port.");
             _tcpClient.Connect(host, port);
+            _logger.LogDebug("Successfully connected to host and port.");
             _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
             _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
         }
@@ -124,13 +136,13 @@ public sealed class NetworkConnection : IDisposable
     {
         try
         {
-            if (_writer != null)
-            {
-                _writer.WriteLine(message);
-            }
+            _logger.LogDebug("Attempting to write message.");
+            _writer!.WriteLine(message);
+            _logger.LogDebug("Successfully wrote message.");
         }
         catch
         {
+            _logger.LogWarning("Failed to write message. Threw InvalidOperationException");
             throw new InvalidOperationException();
         }
     }
@@ -142,21 +154,25 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <returns> The contents of the message. </returns>
-    public string? ReadLine()
+    public string ReadLine()
     {
         try
         {
             if (!IsConnected)
             {
+                _logger.LogWarning("Failed to read message. Threw InvalidOperationException due to client no longer being connected");
                 throw new InvalidOperationException();
             }
 
+            _logger.LogDebug("Attempting to read message.");
             string message = _reader!.ReadLine() ?? throw new InvalidOperationException();
+            _logger.LogDebug("Successfully read message.");
 
             return message;
         }
         catch
         {
+            _logger.LogWarning("Failed to read message. Threw InvalidOperationException");
             throw new InvalidOperationException();
         }
     }
@@ -167,12 +183,16 @@ public sealed class NetworkConnection : IDisposable
     /// </summary>
     public void Disconnect()
     {
+        _logger.LogDebug("Checking to see if client is still connected.");
         if (IsConnected)
         {
+            _logger.LogDebug("Client is still connected. Attempting to dispose and disconnect.");
             _writer?.Dispose();
             _reader?.Dispose();
             _tcpClient.Dispose();
         }
+
+        _logger.LogDebug("Successfully disposed and disconnected.");
     }
 
     /// <summary>

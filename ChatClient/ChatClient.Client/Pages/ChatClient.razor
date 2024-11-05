@@ -1,8 +1,32 @@
-﻿@page "/chatclient"
+﻿@*// <copyright file="NetworkConnection.cs" company="UofU-CS3500">
+  // Copyright (c) 2024 UofU-CS3500. All rights reserved.
+  //
+  </copyright>
+
+  /// <summary>
+  /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
+  /// Partner:   None
+  /// Date:      November 1, 2024
+  /// Course:    CS 3500, University of Utah, School of Computing
+  /// Copyright: CS 3500 and [Joel Rodriguez and Nandhini Ramanathan] - This work may no
+  ///            be copied for use in Academic Coursework.
+  ///
+  /// I, Joel Rodriguez and Nandhini Ramanathan, certify that I wrote this code from scratch and
+  /// did not copy it in part or whole from another source.  All
+  /// references used in the completion of the assignments are cited
+  /// in my README file.
+  ///
+  /// File Contents
+  ///     This sealed class encapsulates all the complex mechanics of a network connection. For example this class houses a StreamReader/Writer/Logger/
+  ///     TcpClient. With these variables we also have methods to use them in a networking session.
+  /// </summary>
+    *@
+@page "/chatclient"
 @rendermode InteractiveServer
 @using CS3500.Networking
 @using System.Text
-@inject ILogger<ChatClient> Logger;
+@using Microsoft.Extensions.Logging.Abstractions
+@inject ILogger<NetworkConnection> Logger;
 @inject IJSRuntime JS;
 
 
@@ -93,7 +117,7 @@
     {
         network.Disconnect();
         Logger.LogInformation("A user has disconnected from the server.");
-        network = new();
+        network = new NetworkConnection(new NullLogger<NetworkConnection>());
     }
 
     /// <summary>
@@ -170,7 +194,7 @@
     {
         Logger.LogInformation("Program Started");
         base.OnInitialized();
-        network = new();
+        network = new NetworkConnection(new NullLogger<NetworkConnection>());
     }
 
 }

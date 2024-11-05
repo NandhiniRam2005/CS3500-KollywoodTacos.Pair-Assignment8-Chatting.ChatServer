@@ -6,6 +6,7 @@ using System.Data;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Microsoft.Extensions.Logging;
 namespace CS3500.Networking;
 
 /// <summary>
@@ -133,19 +134,13 @@ public sealed class NetworkConnection : IDisposable
 
         try
         {
-            string? message = string.Empty;
-
 
             if (!IsConnected)
             {
                 throw new InvalidOperationException();
             }
-            message = _reader!.ReadLine();
-            if (message == null)
-            {
-                throw new InvalidOperationException();
-            }
 
+            string message = _reader!.ReadLine() ?? throw new InvalidOperationException();
 
             return message;
         }

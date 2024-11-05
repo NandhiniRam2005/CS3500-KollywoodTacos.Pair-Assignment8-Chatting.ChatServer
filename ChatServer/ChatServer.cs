@@ -18,14 +18,15 @@ namespace CS3500.Chatting;
 public partial class ChatServer
 {
     private static HashSet<NetworkConnection> connections = new HashSet<NetworkConnection>();
+    private static HashSet<NetworkConnection> tempConnections = new HashSet<NetworkConnection>();
     /// <summary>
     ///   The main program.
     /// </summary>
     /// <param name="args"> ignored. </param>
     /// <returns> A Task. Not really used. </returns>
-    private static void Main( string[] args )
+    private static void Main(string[] args)
     {
-        Server.StartServer( HandleConnect, 11_000 );
+        Server.StartServer(HandleConnect, 11_000);
         Console.Read(); // don't stop the program.
     }
 
@@ -37,7 +38,7 @@ public partial class ChatServer
     ///   </pre>
     /// </summary>
     ///
-    private static void HandleConnect( NetworkConnection connection )
+    private static void HandleConnect(NetworkConnection connection)
     {
 
         // handle all messages until disconnect.
@@ -45,28 +46,38 @@ public partial class ChatServer
         {
             connections.Add(connection);
         }
+
         bool firstMessage = true;
-        string? userName = string.Empty;
+        string userName = string.Empty;
         connection.Send("SERVER: Enter your name: ");
         try
         {
-            while ( true )
+            while (true)
             {
-                var message = connection.ReadLine( );
+                var message = connection.ReadLine();
                 if (firstMessage)
                 {
-                    userName = message;
+                    userName = message ?? throw new InvalidOperationException();
                     firstMessage = false;
-                    if (userName != null) {
-                        BroadcastMessage("SERVER: " + userName + " has entered the chatroom");
-                    }
+                    BroadcastMessage("SERVER: " + userName + " has entered the chatroom");
                     continue;
                 }
                 string fullMessage = userName + ": " + message;
+
+                tempConnections = new HashSet<NetworkConnection>();
+                lock (connections)
+                {
+                    foreach (NetworkConnection connectionInList in connections)
+                    {
+                        tempConnections.Add(connectionInList);
+                    }
+                }
+
                 BroadcastMessage(fullMessage);
+
             }
         }
-        catch ( Exception )
+        catch (Exception)
         {
 
             connection.Disconnect();
@@ -79,12 +90,10 @@ public partial class ChatServer
 
     private static void BroadcastMessage(string message)
     {
-        lock(connections)
+
+        foreach (NetworkConnection connection in tempConnections)
         {
-            foreach (NetworkConnection connection in connections)
-            {
-                connection.Send(message);
-            }
+            connection.Send(message);
         }
     }
 }

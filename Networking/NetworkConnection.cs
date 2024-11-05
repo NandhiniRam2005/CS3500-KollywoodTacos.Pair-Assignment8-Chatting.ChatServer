@@ -39,7 +39,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="tcpClient">
     ///   An already existing TcpClient
     /// </param>
-    public NetworkConnection(TcpClient tcpClient)
+    public NetworkConnection(TcpClient tcpClient, ILogger logger)
     {
         _tcpClient = tcpClient;
         if (IsConnected)

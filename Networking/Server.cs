@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Xml.Schema;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CS3500.Networking;
 
@@ -35,7 +36,7 @@ public static class Server
         {
             
             TcpClient client = server.AcceptTcpClient();
-            NetworkConnection connection = new NetworkConnection( client );
+            NetworkConnection connection = new NetworkConnection( client, new NullLogger<NetworkConnection>() );
             Thread newClient = new Thread(() => handleConnect(connection));
             newClient.Start();
         }

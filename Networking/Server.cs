@@ -41,7 +41,7 @@ public static class Server
     /// </summary>
     /// <param name="handleConnect">
     ///   Handler for what the user wants to do when a connection is made.
-    ///   This should be run asynchronously via a new thread.
+    ///   It is run asynchronously via a new thread.
     /// </param>
     /// <param name="port"> The port (e.g., 11000) to listen on. </param>
     public static void StartServer( Action<NetworkConnection> handleConnect, int port )
@@ -49,6 +49,7 @@ public static class Server
         TcpListener server = new(IPAddress.Any, port);
         server.Start();
 
+        // Infinite loop to keep the server running and continuously accept new clients.
         while (true)
         {
             TcpClient client = server.AcceptTcpClient();

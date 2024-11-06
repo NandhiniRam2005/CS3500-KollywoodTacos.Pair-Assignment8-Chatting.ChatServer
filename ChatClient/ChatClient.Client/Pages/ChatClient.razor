@@ -18,9 +18,11 @@
   ///
   /// File Contents
   ///     This sealed class encapsulates all the complex mechanics of a network connection. For example this class houses a StreamReader/Writer/Logger/
-  ///     TcpClient. With these variables we also have methods to use them in a networking session.
+  ///     TcpClient. It provides methods to handle connecting and disconnecting from the server and methods for sending and receiving chat messages. 
+  ///     It also manages a logger for various activities in the chatroom.
   /// </summary>
     *@
+
 @page "/chatclient"
 @rendermode InteractiveServer
 @using CS3500.Networking
@@ -29,9 +31,7 @@
 @inject ILogger<NetworkConnection> Logger;
 @inject IJSRuntime JS;
 
-
 <PageTitle>Chat Client</PageTitle>
-
 <h1>Chat Client</h1>
 
 <div id="ConnectionInputs">
@@ -79,22 +79,22 @@
 @code
 {
     /// <summary>
-    /// Default server name
+    /// Default server name.
     /// </summary>
     private string ServerNameOrAddress = "localhost";
 
     /// <summary>
-    /// Default server port
+    /// Default server port.
     /// </summary>
     private int ServerPort = 11000;
 
     /// <summary>
-    /// The NetworkConnection object representing a connection with the server
+    /// The NetworkConnection object representing a connection with the server.
     /// </summary>
     private NetworkConnection network = null!;
 
     /// <summary>
-    /// The string shown in the message display area, representing all messages seen
+    /// The string shown in the message display area, representing all messages seen.
     /// </summary>
     private string MessageDisplayTextAreaData
     {
@@ -105,7 +105,7 @@
     }
 
     /// <summary>
-    /// All of the messages seen by the server
+    /// All of the messages seen by the server and displayed in the chatroom.
     /// </summary>
     private List<string> AllMessages = new();
 
@@ -157,16 +157,14 @@
                     {
                         Logger.LogDebug("Entering the disconnect method");
                         network.Disconnect();
-                        Logger.LogDebug("Exited the disconnect method succesfully");
+                        Logger.LogDebug("Exited the disconnect method successfully");
                         Logger.LogInformation("A user has disconnected from the chatroom.");
-                        // add anything needed here to handle a disconnection from the server
                     }
                 }
             } ).Start();
         }
         catch
         {
-            // add anything needed here to handle a failure to connect
         }
 
     }
@@ -188,7 +186,7 @@
     }
 
     /// <summary>
-    ///   Create a default network object
+    ///   Create/ Initializes a default network object
     /// </summary>
     protected override void OnInitialized()
     {

@@ -25,8 +25,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 /// in my README file.
 ///
 /// File Contents
-///     This sealed class encapsulates all the complex mechanics of a network connection. For example this class houses a StreamReader/Writer/Logger/
-///     TcpClient. With these variables we also have methods to use them in a networking session.
+///     This class encapsulates a network connection, managing the core components of a TCP connection such as the client,
+///     reader, and writer.It provides methods for connecting, disconnecting, sending, and receiving messages over the network.
+///     This class also integrates logging to track connection status, data transmission, and errors.
 /// </summary>
 
 /// <summary>
@@ -41,17 +42,17 @@ public sealed class NetworkConnection : IDisposable
     private readonly ILogger<NetworkConnection> _logger;
 
     /// <summary>
-    ///   The connection/socket abstraction.
+    /// The client responsible for managing the underlying network connection. The connection/socket abstraction.
     /// </summary>
     private TcpClient _tcpClient = new();
 
     /// <summary>
-    ///   Reading end of the connection.
+    /// Reader to read incoming data from the connection.
     /// </summary>
     private StreamReader? _reader = null;
 
     /// <summary>
-    ///   Writing end of the connection.
+    /// Writer to send data over the connection.
     /// </summary>
     private StreamWriter? _writer = null;
 
@@ -124,7 +125,7 @@ public sealed class NetworkConnection : IDisposable
     }
 
     /// <summary>
-    ///   Send a message to the remote server.  If the <paramref name="message"/> contains
+    ///   Sends a message to the remote server.  If the <paramref name="message"/> contains
     ///   new lines, these will be treated on the receiving side as multiple messages.
     ///   This method should attach a newline to the end of the <paramref name="message"/>
     ///   (by using WriteLine).

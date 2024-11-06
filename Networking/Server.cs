@@ -78,7 +78,6 @@ public static class Server
             Thread newClient = new Thread(() => handleConnect(connection));
             newClient.Start();
             _logger.LogDebug("Successfully created and started thread for client.");
-
         }
     }
 }

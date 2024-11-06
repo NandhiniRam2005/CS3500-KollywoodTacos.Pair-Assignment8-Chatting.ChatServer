@@ -37,10 +37,13 @@ using System.Text;
 /// </summary>
 public partial class ChatServer
 {
-    private static readonly ILogger<ChatServer> _logger;
+    /// <summary>
+    /// A logger for recording server events, warnings, and errors. 
+    /// </summary>
+    private static readonly ILogger<ChatServer>? _logger;
 
     /// <summary>
-    /// All the connections to our Chat Server.
+    /// Stores all the connections to our Chat Server.
     /// </summary>
     private static HashSet<NetworkConnection> connections = new HashSet<NetworkConnection>();
 
@@ -49,11 +52,16 @@ public partial class ChatServer
     /// </summary>
     private static HashSet<NetworkConnection> tempConnections = new HashSet<NetworkConnection>();
 
+    /// <summary>
+    /// Initializes static members of the <see cref="ChatServer"/> class.
+    /// A static constructor for ChatServer to initialize the logger.
+    /// </summary>
+    /// </summary>
     static ChatServer()
     {
         using var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.AddConsole(); // JIM: must nuget add Microsoft.Extensions.Logging.Console and Debug
+            builder.AddConsole();
             builder.AddDebug();
             builder.SetMinimumLevel(LogLevel.Trace);
         });
@@ -61,7 +69,7 @@ public partial class ChatServer
     }
 
     /// <summary>
-    ///   The main program.
+    ///   Entry point for the ChatServer program, starting the server on port 11000.
     /// </summary>
     /// <param name="args"> ignored. </param>
     private static void Main(string[] args)
@@ -71,16 +79,12 @@ public partial class ChatServer
     }
 
     /// <summary>
-    ///   <pre>
-    ///     When a new connection is established, enter a loop that receives from and
-    ///     replies to a client.
-    ///   </pre>
+    /// Handles new client connections by receiving and responding to messages in a loop.
     /// </summary>
-    ///
     private static void HandleConnect(NetworkConnection connection)
     {
-        // handle all messages until disconnect.
-        _logger.LogDebug("Locking connections backing storage.");
+        // Add the new connection to the set of active connections. Locks used to avoid race conditions.
+        _logger?.LogDebug("Locking connections backing storage.");
         lock (connections)
         {
             connections.Add(connection);
@@ -95,6 +99,7 @@ public partial class ChatServer
         {
             while (true)
             {
+                // Read client message and handle username if it's the first message
                 var message = connection.ReadLine();
                 if (firstMessage)
                 {
@@ -111,6 +116,7 @@ public partial class ChatServer
 
                 tempConnections = new HashSet<NetworkConnection>();
 
+                // Copy connections to tempConnections for broadcasting, applying a better strategy for locking.
                 _logger?.LogDebug("Locking connections backing storage.");
                 lock (connections)
                 {
@@ -128,8 +134,9 @@ public partial class ChatServer
         }
         catch (Exception)
         {
-            _logger.LogWarning("Client has disconnected and messages could not be sent.");
-            _logger.LogDebug("Attempting to disconnect connection to said client.");
+            // Dispose the disconnected client
+            _logger?.LogWarning("Client has disconnected and messages could not be sent.");
+            _logger?.LogDebug("Attempting to disconnect connection to said client.");
             connection.Disconnect();
             _logger.LogDebug("Successfully disconnected connection to said client.");
             _logger.LogDebug("Locking connections backing storage.");
@@ -142,6 +149,10 @@ public partial class ChatServer
         }
     }
 
+    /// <summary>
+    /// Sends a message to all currently connected clients in the tempConnections set.
+    /// </summary>
+    /// <param name="message">The message to broadcast.</param>
     private static void BroadcastMessage(string message)
     {
         foreach (NetworkConnection connection in tempConnections)

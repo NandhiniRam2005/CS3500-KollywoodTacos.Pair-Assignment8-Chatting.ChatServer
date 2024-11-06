@@ -37,7 +37,7 @@ using System.Text;
 /// </summary>
 public partial class ChatServer
 {
-    private static readonly ILogger<ChatServer>? _logger;
+    private static readonly ILogger<ChatServer> _logger;
 
     /// <summary>
     /// All the connections to our Chat Server.
@@ -80,13 +80,13 @@ public partial class ChatServer
     private static void HandleConnect(NetworkConnection connection)
     {
         // handle all messages until disconnect.
-        _logger?.LogDebug("Locking connections backing storage.");
+        _logger.LogDebug("Locking connections backing storage.");
         lock (connections)
         {
             connections.Add(connection);
         }
 
-        _logger?.LogDebug("Unlocked connections backing storage.");
+        _logger.LogDebug("Unlocked connections backing storage.");
 
         bool firstMessage = true;
         string userName = string.Empty;
@@ -128,17 +128,17 @@ public partial class ChatServer
         }
         catch (Exception)
         {
-            _logger?.LogWarning("Client has disconnected and messages could not be sent.");
-            _logger?.LogDebug("Attempting to disconnect connection to said client.");
+            _logger.LogWarning("Client has disconnected and messages could not be sent.");
+            _logger.LogDebug("Attempting to disconnect connection to said client.");
             connection.Disconnect();
-            _logger?.LogDebug("Successfully disconnected connection to said client.");
-            _logger?.LogDebug("Locking connections backing storage.");
+            _logger.LogDebug("Successfully disconnected connection to said client.");
+            _logger.LogDebug("Locking connections backing storage.");
             lock (connections)
             {
                 connections.Remove(connection);
             }
 
-            _logger?.LogDebug("Unlocked connections backing storage.");
+            _logger.LogDebug("Unlocked connections backing storage.");
         }
     }
 

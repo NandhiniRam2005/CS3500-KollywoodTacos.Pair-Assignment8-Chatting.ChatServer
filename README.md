@@ -11,9 +11,15 @@ Copyright:  CS 3500 and [Joel Rodriguez and Nandhini Ramanathan] - This work may
 ```
 
 # Assignment Specific Topics
-
+1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..
+2. Understand and describe how networking code works
+3. Understand how to protect critical regions from race conditions encountered in parallel programs. 
+We apply all these assignment specific topics by adding threading to handle multiple clients at the same time. We also do this by adding and
+implementing a Network Connection Class. We also implement Debugging in all of our classes such as Networking, ChatServer, and ChatClient.Client.
 # Overview of the Chatting Client functionality
-
+Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The chat client provides helpful 
+logging messages that help developers figure out where errors could have possibly happened without having to debug their code. 
+Future extensions of the chatting client is to apply it to our game project.
 
 
 # Examples of Good Software Practice (GSP).  

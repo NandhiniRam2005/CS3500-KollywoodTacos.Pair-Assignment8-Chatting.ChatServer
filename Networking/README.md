@@ -13,7 +13,11 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 # Comments to Evaluators:
 
 # Assignment Specific Topics
-
+1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..
+2. Understand and describe how networking code works
+3. Understand how to protect critical regions from race conditions encountered in parallel programs. 
+We apply all these assignment specific topics by adding threading to handle multiple clients at the same time. We also do this by adding and
+implementing a Network Connection Class. We also implement Debugging in this Networking class.
 
 # Consulted Peers:
 
@@ -22,4 +26,5 @@ List any peers (or other people) in the class (or outside for that matter) that 
 1. Nandhini Ramanathan
 
 # References:
-
+    1. Debug Logging levels - https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel?view=net-8.0
+    2. Threads in C# - https://learn.microsoft.com/en-us/dotnet/api/system.threading.thread?view=net-8.0

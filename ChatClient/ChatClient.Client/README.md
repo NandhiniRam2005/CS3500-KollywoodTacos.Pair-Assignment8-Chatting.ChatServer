@@ -12,6 +12,16 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 
 # Comments to Evaluators:
 
+Originally, after a client disconnected, they couldn't reconnect to the server again because when you disconnect,
+the method disposes the network connection object that it uses. So, in our DisconnectFromServer, after disconnected we added a 
+line of code that just instantiates a new instance of the network connection, which allows teh user to reconnect back again.
+
+We were a little worried that we logged too much in our code, but a TA also told us that having more logging statement is alright 
+as long as we have levels. We incorporated this by logging BIG events like broadcasting messages, connecting, and disconnecting to the server
+at the Info level. We logged lesser important events in Debug such as attempting to connect or disconnect from the server. We also log
+small events such as entering and exiting methods successfully like when trying to read or write the message at the Trace level. We also 
+have log warnings where appropriate like when the server unexpectedly disconnects, and the message was not sent through.
+
 # Assignment Specific Topics
 1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..
 2. Understand and describe how networking code works

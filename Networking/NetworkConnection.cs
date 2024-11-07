@@ -138,9 +138,9 @@ public sealed class NetworkConnection : IDisposable
     {
         try
         {
-            _logger.LogDebug("Attempting to write message.");
+            _logger.LogTrace("Attempting to write message.");
             _writer!.WriteLine(message);
-            _logger.LogDebug("Successfully wrote message.");
+            _logger.LogTrace("Successfully wrote message.");
         }
         catch
         {
@@ -166,9 +166,9 @@ public sealed class NetworkConnection : IDisposable
                 throw new InvalidOperationException();
             }
 
-            _logger.LogDebug("Attempting to read message.");
+            _logger.LogTrace("Attempting to read message.");
             string message = _reader!.ReadLine() ?? throw new InvalidOperationException();
-            _logger.LogDebug("Successfully read message.");
+            _logger.LogTrace("Successfully read message.");
 
             return message;
         }

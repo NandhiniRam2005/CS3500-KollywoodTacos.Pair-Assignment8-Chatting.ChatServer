@@ -11,6 +11,17 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 ```
 
 # Comments to Evaluators:
+A TA told us to only create two loggers for the entire solution, including both
+the ChatServer and ChatClient classes. So we created only two instances of
+ILoger for the server and one for the client, rather than multiple
+loggers across all our classes. Only allowing two loggers in our entire solution,
+made it so that we had to change the public API/ method signatures to take in a logger
+parameter which a TA also told was okay to do in the Server method.
+
+- The ChatServer logger handles logging of server events such as client connections, message
+  broadcasting, and error warnings.
+- The ChatClient logger, similarly, tracks client-side events like connection status and received
+  messages.
 
 # Assignment Specific Topics
 1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..

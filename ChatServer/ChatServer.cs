@@ -83,24 +83,14 @@ public partial class ChatServer
     /// </summary>
     private static void HandleConnect(NetworkConnection connection)
     {
-        // Information should be connecting disconnecting broadcasting a message
-        // Debug should be attempting to do something like attempting to connect to server or disconnect. Attempting BIG things.
-        // Trace should be small things like locking or entering certains parts of methods and other do dads.
-        // Test this bih
-        // Also in Readme's
-        // 1. Chat Clientclient i want you to say how we change the disconnect all also that any amount of debugging okay as long as we got levels
-        // 2. ChatServer. Log also write that TA told us to only create two loggers in our entire solution
-        // 3. Other one log only 2 and that we are allowed to change public api (method sigs) to be able to do only 2 loggers.
-
-
         // Add the new connection to the set of active connections. Locks used to avoid race conditions.
-        _logger.LogDebug("Locking connections backing storage.");
+        _logger.LogTrace("Locking connections backing storage.");
         lock (connections)
         {
             connections.Add(connection);
         }
 
-        _logger.LogDebug("Unlocked connections backing storage.");
+        _logger.LogTrace("Unlocked connections backing storage.");
 
         bool firstMessage = true;
         string userName = string.Empty;
@@ -134,10 +124,10 @@ public partial class ChatServer
                 string fullMessage = userName + ": " + message;
 
                 // Copy connections to tempConnections for broadcasting, applying a better strategy for locking.
-                _logger?.LogDebug("Locking connections backing storage.");
+                _logger?.LogTrace("Locking connections backing storage.");
 
-                _logger?.LogDebug("Unlocked connections backing storage.");
-                _logger?.LogInformation($@"Broadcasting message: ""{ fullMessage} "" from ""{userName}"" to clients");
+                _logger?.LogTrace("Unlocked connections backing storage.");
+                _logger?.LogInformation($@"Broadcasting message: ""{fullMessage} "" from ""{userName}"" to clients");
                 BroadcastMessage(fullMessage);
                 _logger?.LogInformation("Successfully broad casted message to clients");
             }
@@ -155,7 +145,7 @@ public partial class ChatServer
                 connections.Remove(connection);
             }
 
-            _logger.LogDebug("Unlocked connections backing storage.");
+            _logger.LogTrace("Unlocked connections backing storage.");
         }
     }
 

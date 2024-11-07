@@ -11,6 +11,12 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 ```
 
 # Comments to Evaluators:
+As mentioned in our other README, one logger is in our ChatServer class, the other one is in this NetworkConnection class. 
+The NetworkConnection logger, similarly, tracks client-side events like connection status, reading, and writing messages; 
+it also logs warnings when necessary like failed to read or write messages.
+
+Only allowing two loggers in our entire solution as mentioned, made it so that we had to change the public API/ method 
+signatures to take in a logger parameter which a TA also told was okay to do in the Server method.
 
 # Assignment Specific Topics
 1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..

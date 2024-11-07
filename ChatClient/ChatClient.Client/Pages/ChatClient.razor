@@ -129,9 +129,9 @@
     {
         try
         {
-            Logger.LogTrace("Entering the Connect method");
+            Logger.LogDebug("Entering the Connect method");
             network.Connect( ServerNameOrAddress, ServerPort );
-            Logger.LogTrace("Exited the connect method successfully.");
+            Logger.LogDebug("Exited the connect method successfully.");
             Logger.LogInformation("A user has connected to the server.");
 
             // Communicating with the server needs to be asynchronous so that the UI thread 
@@ -155,9 +155,9 @@
                     }
                     catch
                     {
-                        Logger.LogTrace("Entering the disconnect method");
+                        Logger.LogDebug("Entering the disconnect method");
                         network.Disconnect();
-                        Logger.LogTrace("Exited the disconnect method successfully");
+                        Logger.LogDebug("Exited the disconnect method successfully");
                         Logger.LogInformation("A user has disconnected from the chatroom.");
                     }
                 }
@@ -178,9 +178,9 @@
     {
         if ( e.Value != null )
         {
-            Logger.LogTrace("Entering send method");
+            Logger.LogDebug("Entering send method");
             network.Send( $"{e.Value}" );
-            Logger.LogTrace("Exited send method successfully");
+            Logger.LogDebug("Exited send method successfully");
             Logger.LogInformation("A message has been sent "+$"{e.Value}");
         }
     }

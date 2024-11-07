@@ -36,10 +36,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 /// </summary>
 public static class Server
 {
-    static Server()
-    {
-    }
-
     /// <summary>
     ///   Wait on a TcpListener for new connections. Alert the main program
     ///   via a callback (delegate) mechanism.
@@ -60,16 +56,16 @@ public static class Server
         // Infinite loop to keep the server running and continuously accept new clients.
         while (true)
         {
-            logger.LogTrace("Attempting to accept new client to server");
+            logger.LogDebug("Attempting to accept new client to server");
             TcpClient client = server.AcceptTcpClient();
             logger.LogInformation("Successfully accepted new client to server");
-            logger.LogTrace("Attempting to create NetworkConnection for client.");
+            logger.LogDebug("Attempting to create NetworkConnection for client.");
             NetworkConnection connection = new NetworkConnection( client, logger);
             logger.LogDebug("Successfully created NetworkConnection for client");
             logger.LogTrace("Attempting to create new thread for NetworkConnection for client and start thread.");
             Thread newClient = new Thread(() => handleConnect(connection));
             newClient.Start();
-            logger.LogInformation("Successfully created and started thread for client.");
+            logger.LogDebug("Successfully created and started thread for client.");
         }
     }
 }

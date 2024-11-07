@@ -74,7 +74,7 @@ public partial class ChatServer
     /// <param name="args"> ignored. </param>
     private static void Main(string[] args)
     {
-        Server.StartServer(HandleConnect, 11_000);
+        Server.StartServer(HandleConnect, 11_000, _logger);
         Console.Read(); // don't stop the program.
     }
 
@@ -83,14 +83,24 @@ public partial class ChatServer
     /// </summary>
     private static void HandleConnect(NetworkConnection connection)
     {
+        // Information should be connecting disconnecting broadcasting a message
+        // Debug should be attempting to do something like attempting to connect to server or disconnect. Attempting BIG things.
+        // Trace should be small things like locking or entering certains parts of methods and other do dads.
+        // Test this bih
+        // Also in Readme's
+        // 1. Chat Clientclient i want you to say how we change the disconnect all also that any amount of debugging okay as long as we got levels
+        // 2. ChatServer. Log also write that TA told us to only create two loggers in our entire solution
+        // 3. Other one log only 2 and that we are allowed to change public api (method sigs) to be able to do only 2 loggers.
+
+
         // Add the new connection to the set of active connections. Locks used to avoid race conditions.
-        _logger?.LogDebug("Locking connections backing storage.");
+        _logger.LogDebug("Locking connections backing storage.");
         lock (connections)
         {
             connections.Add(connection);
         }
 
-        _logger?.LogDebug("Unlocked connections backing storage.");
+        _logger.LogDebug("Unlocked connections backing storage.");
 
         bool firstMessage = true;
         string userName = string.Empty;
@@ -99,6 +109,15 @@ public partial class ChatServer
         {
             while (true)
             {
+                tempConnections = new HashSet<NetworkConnection>();
+                lock (connections)
+                {
+                    foreach (NetworkConnection connectionInList in connections)
+                    {
+                        tempConnections.Add(connectionInList);
+                    }
+                }
+
                 // Read client message and handle username if it's the first message
                 var message = connection.ReadLine();
                 if (firstMessage)
@@ -114,20 +133,11 @@ public partial class ChatServer
 
                 string fullMessage = userName + ": " + message;
 
-                tempConnections = new HashSet<NetworkConnection>();
-
                 // Copy connections to tempConnections for broadcasting, applying a better strategy for locking.
                 _logger?.LogDebug("Locking connections backing storage.");
-                lock (connections)
-                {
-                    foreach (NetworkConnection connectionInList in connections)
-                    {
-                        tempConnections.Add(connectionInList);
-                    }
-                }
 
                 _logger?.LogDebug("Unlocked connections backing storage.");
-                _logger?.LogInformation($"Broadcasting message: {fullMessage} from {userName} to clients");
+                _logger?.LogInformation($@"Broadcasting message: ""{ fullMessage} "" from ""{userName}"" to clients");
                 BroadcastMessage(fullMessage);
                 _logger?.LogInformation("Successfully broad casted message to clients");
             }
@@ -135,17 +145,17 @@ public partial class ChatServer
         catch (Exception)
         {
             // Dispose the disconnected client
-            _logger?.LogWarning("Client has disconnected and messages could not be sent.");
-            _logger?.LogDebug("Attempting to disconnect connection to said client.");
+            _logger.LogWarning("Client has disconnected and messages could not be sent.");
+            _logger.LogDebug("Attempting to disconnect connection to said client.");
             connection.Disconnect();
-            _logger?.LogDebug("Successfully disconnected connection to said client.");
-            _logger?.LogDebug("Locking connections backing storage.");
+            _logger.LogDebug("Successfully disconnected connection to said client.");
+            _logger.LogTrace("Locking connections backing storage.");
             lock (connections)
             {
                 connections.Remove(connection);
             }
 
-            _logger?.LogDebug("Unlocked connections backing storage.");
+            _logger.LogDebug("Unlocked connections backing storage.");
         }
     }
 

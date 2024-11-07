@@ -117,7 +117,7 @@
     {
         network.Disconnect();
         Logger.LogInformation("A user has disconnected from the server.");
-        network = new NetworkConnection(new NullLogger<NetworkConnection>());
+        network = new NetworkConnection(Logger);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@
     {
         Logger.LogInformation("Program Started");
         base.OnInitialized();
-        network = new NetworkConnection(new NullLogger<NetworkConnection>());
+        network = new NetworkConnection(Logger);
     }
 
 }

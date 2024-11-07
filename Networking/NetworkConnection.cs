@@ -39,7 +39,7 @@ public sealed class NetworkConnection : IDisposable
     /// <summary>
     /// The logger which will be used to log our logging for logging purposes (particularly for logging and logging other things).
     /// </summary>
-    private readonly ILogger<NetworkConnection> _logger;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// The client responsible for managing the underlying network connection. The connection/socket abstraction.
@@ -68,7 +68,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="logger"> The logging interface. </param>
     public NetworkConnection(TcpClient tcpClient, ILogger logger)
     {
-        _logger = (ILogger<NetworkConnection>?)logger ?? throw new InvalidOperationException();
+        _logger = logger;
 
         _tcpClient = tcpClient;
         if (IsConnected)
@@ -121,6 +121,7 @@ public sealed class NetworkConnection : IDisposable
         }
         catch
         {
+            _logger.LogError("Client failed to connect which resulted in error. Possible reasons could be loss of Internet connection.");
         }
     }
 

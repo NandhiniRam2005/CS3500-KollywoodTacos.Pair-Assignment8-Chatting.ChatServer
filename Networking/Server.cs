@@ -36,17 +36,17 @@ using Microsoft.Extensions.Logging.Abstractions;
 /// </summary>
 public static class Server
 {
-    private static readonly ILogger _logger;
+    //private static readonly ILogger _logger;
 
     static Server()
     {
-        using var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole(); // JIM: must nuget add Microsoft.Extensions.Logging.Console and Debug
-            builder.AddDebug();
-            builder.SetMinimumLevel(LogLevel.Trace);
-        });
-        _logger = loggerFactory.CreateLogger("Server");
+        //using var loggerFactory = LoggerFactory.Create(builder =>
+        //{
+        //    builder.AddConsole(); // JIM: must nuget add Microsoft.Extensions.Logging.Console and Debug
+        //    builder.AddDebug();
+        //    builder.SetMinimumLevel(LogLevel.Trace);
+        //});
+        //_logger = loggerFactory.CreateLogger("Server");
     }
 
     /// <summary>
@@ -58,11 +58,11 @@ public static class Server
     ///   It is run asynchronously via a new thread.
     /// </param>
     /// <param name="port"> The port (e.g., 11000) to listen on. </param>
-    public static void StartServer( Action<NetworkConnection> handleConnect, int port )
+    public static void StartServer( Action<NetworkConnection> handleConnect, int port, ILogger _logger)
     {
-        _logger.LogDebug("Attempting to create server");
+        _logger.LogInformation("Attempting to create server");
         TcpListener server = new(IPAddress.Any, port);
-        _logger.LogDebug("Successfully created server");
+        _logger.LogInformation("Successfully created server");
         server.Start();
 
         // Infinite loop to keep the server running and continuously accept new clients.
@@ -70,14 +70,14 @@ public static class Server
         {
             _logger.LogDebug("Attempting to accept new client to server");
             TcpClient client = server.AcceptTcpClient();
-            _logger.LogDebug("Successfully accepted new client to server");
+            _logger.LogInformation("Successfully accepted new client to server");
             _logger.LogDebug("Attempting to create NetworkConnection for client.");
-            NetworkConnection connection = new NetworkConnection( client, new NullLogger<NetworkConnection>() );
+            NetworkConnection connection = new NetworkConnection( client, _logger);
             _logger.LogDebug("Successfully created NetworkConnection for client");
             _logger.LogDebug("Attempting to create new thread for NetworkConnection for client and start thread.");
             Thread newClient = new Thread(() => handleConnect(connection));
             newClient.Start();
-            _logger.LogDebug("Successfully created and started thread for client.");
+            _logger.LogInformation("Successfully created and started thread for client.");
         }
     }
 }

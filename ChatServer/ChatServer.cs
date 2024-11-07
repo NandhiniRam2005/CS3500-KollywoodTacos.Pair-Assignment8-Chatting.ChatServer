@@ -110,6 +110,7 @@ public partial class ChatServer
                         tempConnections.Add(connectionInList);
                     }
                 }
+
                 _logger?.LogTrace("Unlocked connections backing storage.");
 
                 // Read client message and handle username if it's the first message

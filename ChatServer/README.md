@@ -23,6 +23,8 @@ parameter which a TA also told was okay to do in the Server method.
 - The ChatClient logger, similarly, tracks client-side events like connection status and received
   messages.
 
+In class Professor de St Germaine said to mainly use debug and information level debugging. (Slide 13 Lecture 21). 
+We decided with prof's guidelines.
 # Assignment Specific Topics
 1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..
 2. Understand and describe how networking code works

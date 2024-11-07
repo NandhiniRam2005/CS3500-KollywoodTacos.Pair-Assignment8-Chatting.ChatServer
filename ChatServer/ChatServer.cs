@@ -99,7 +99,10 @@ public partial class ChatServer
         {
             while (true)
             {
+                // Copy connections to tempConnections for broadcasting, applying a better strategy for locking.
                 tempConnections = new HashSet<NetworkConnection>();
+
+                _logger?.LogTrace("Locking connections backing storage.");
                 lock (connections)
                 {
                     foreach (NetworkConnection connectionInList in connections)
@@ -107,6 +110,7 @@ public partial class ChatServer
                         tempConnections.Add(connectionInList);
                     }
                 }
+                _logger?.LogTrace("Unlocked connections backing storage.");
 
                 // Read client message and handle username if it's the first message
                 var message = connection.ReadLine();
@@ -123,10 +127,6 @@ public partial class ChatServer
 
                 string fullMessage = userName + ": " + message;
 
-                // Copy connections to tempConnections for broadcasting, applying a better strategy for locking.
-                _logger?.LogTrace("Locking connections backing storage.");
-
-                _logger?.LogTrace("Unlocked connections backing storage.");
                 _logger?.LogInformation($@"Broadcasting message: ""{fullMessage} "" from ""{userName}"" to clients");
                 BroadcastMessage(fullMessage);
                 _logger?.LogInformation("Successfully broad casted message to clients");
@@ -139,6 +139,7 @@ public partial class ChatServer
             _logger.LogDebug("Attempting to disconnect connection to said client.");
             connection.Disconnect();
             _logger.LogDebug("Successfully disconnected connection to said client.");
+
             _logger.LogTrace("Locking connections backing storage.");
             lock (connections)
             {

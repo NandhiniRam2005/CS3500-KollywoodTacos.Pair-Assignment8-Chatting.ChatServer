@@ -22,7 +22,8 @@ In class Professor de St Germaine said to mainly use debug and information level
 We decided with prof's guidelines.
 
 Also in lecture he said we got to up to Minimum log level once we are done and ready to submit to the Information level (See lecture 21 around
-the 13 minute mark.) We did that as well. So if you notice that we don't have much logs it is because we upped the min level like prof told us to.
+the 13 minute mark.) However we felt that, that did not make sense since it would make life for you (the TA's) harder as you wouldn't be
+able to see all of our logging messages easily. So we decided to keep the minimum level to trace.
 
 # Assignment Specific Topics
 1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..

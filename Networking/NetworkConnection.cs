@@ -191,7 +191,7 @@ public sealed class NetworkConnection : IDisposable
             _logger.LogDebug("Client is still connected. Attempting to dispose and disconnect.");
             _writer?.Dispose();
             _reader?.Dispose();
-            _tcpClient.Dispose();
+            _tcpClient.Close();
         }
 
         _logger.LogDebug("Successfully disposed and disconnected.");

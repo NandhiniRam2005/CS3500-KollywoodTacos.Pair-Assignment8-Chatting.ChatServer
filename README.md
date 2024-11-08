@@ -16,7 +16,9 @@ Copyright:  CS 3500 and [Joel Rodriguez and Nandhini Ramanathan] - This work may
 3. Understand how to protect critical regions from race conditions encountered in parallel programs. 
 We apply all these assignment specific topics by adding threading to handle multiple clients at the same time. We also do this by adding and
 implementing a Network Connection Class. We also implement Debugging in all of our classes such as Networking, ChatServer, and ChatClient.Client.
-
+Also in lecture he said we got to up to Minimum log level once we are done and ready to submit to the Information level (See lecture 21 around
+the 13 minute mark.) However we felt that, that did not make sense since it would make life for you (the TA's) harder as you wouldn't be
+able to see all of our logging messages easily. So we decided to keep the minimum level to trace.
 # Overview of the Chatting Client functionality
 Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The messages that are sent are accompanied
 by a name of the user and their message as well as a time stamp of when the user sent that message. There is also a feature where the server 

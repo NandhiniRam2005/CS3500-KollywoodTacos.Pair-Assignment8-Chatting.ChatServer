@@ -18,8 +18,10 @@ We apply all these assignment specific topics by adding threading to handle mult
 implementing a Network Connection Class. We also implement Debugging in all of our classes such as Networking, ChatServer, and ChatClient.Client.
 
 # Overview of the Chatting Client functionality
-Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The chat client provides helpful 
-logging messages that help developers figure out where errors could have possibly happened without having to debug their code. 
+Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The messages that are sent are accompanied
+by a name of the user and their message as well as a time stamp of when the user sent that message. There is also a feature where the server 
+announces when a person joins the server. The chat client provides helpful logging messages that help developers figure out where errors could have
+possibly happened without having to debug their code. 
 Future extensions of the chatting client is to apply it to our game project.
 
 
@@ -35,28 +37,28 @@ Others I have achieved are:
 2. Abstraction
 
 # Time Management Skills
-Throughout this project I have learned many things about time management skills and estimation skills. One of the main things I have learned is 
+Throughout this first project we have learned many things about time management skills and estimation skills. One of the main things we have learned is 
 that if anything it is best to overestimate how long you think an assignment will take you that way you can plan ahead and have the proper amount
-of time dedicated to it. I have also learned that it is good to not sit down and do all your coding in one sitting. This leads to you missing
-edge cases or possibly forgetting to do certain things in your work. I think I have been getting slowly better with my time estimation skills and will
+of time dedicated to it. We have also learned that it is good to not sit down and do all your coding in one sitting. This leads to you missing
+edge cases or possibly forgetting to do certain things in your work. WE think we have been getting slowly better with our time estimation skills and will
 continue to get better as the semester continues.
 
 # Time Management Skills  / Time Tracking - A8
 Throughout this assignment we learned more about time tracking and how to accurately estimate our time and improve our time management skills. We both felt
 that working with a partner added more pressure to being focused because both of grades are on the line. This led to us working on the assignment more 
-diligently. We also felt like we were able to accurately predict how long the assignment take us, which was about 13 hours. We hope to take these skills into 
+diligently. We also felt like we were able to accurately predict how long the assignment take us, which was about 12 hours. We hope to take these skills into 
 our next assignments.
 
 # Time Expenditures:
 
-    2. Assignment 8: Formula Class                  Predicted Hours:  12       Actual Hours:   8.5
+    2. Assignment 8: Chatting Network/Logging                Predicted Hours:  12       Actual Hours:   9.5
                                                              Joel Rodriguez:                                                                             
                                                                                 Hours Spent - 
                                                                                    Effectively:     3
-                                                                                   Debugging:       3
-                                                                                   Learning Tools:  2.5
+                                                                                   Debugging:       1
+                                                                                   Learning Tools:  5
                                                              Nandhini Ramanathan:                                                                             
                                                                                 Hours Spent - 
                                                                                    Effectively:     3
-                                                                                   Debugging:       3
-                                                                                   Learning Tools:  2.5
+                                                                                   Debugging:       1
+                                                                                   Learning Tools:  5

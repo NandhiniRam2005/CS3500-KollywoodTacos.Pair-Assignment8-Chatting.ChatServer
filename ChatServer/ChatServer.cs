@@ -142,9 +142,16 @@ public partial class ChatServer
             _logger.LogDebug("Successfully disconnected connection to said client.");
 
             _logger.LogTrace("Locking connections backing storage.");
+
+            // tempConnections must also be updated because message may be attempted to send to disconnected connection.
+            tempConnections = new HashSet<NetworkConnection>();
             lock (connections)
             {
                 connections.Remove(connection);
+                foreach (NetworkConnection connectionInList in connections)
+                {
+                    tempConnections.Add(connectionInList);
+                }
             }
 
             _logger.LogTrace("Unlocked connections backing storage.");

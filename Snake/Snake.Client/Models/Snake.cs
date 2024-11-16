@@ -1,19 +1,30 @@
-﻿namespace Snake.Client.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Snake.Client.Models;
 
 public class Snake
 {
-    public int snake { get; set; }
-    public string name { get; set; }
-    public List<Point2D> body {get; set;}
-    public Point2D dir { get; set;}
-    public int score { get; set; }
-    public bool died { get; set; }
-    public bool alive { get; set; }
-    public bool dc {  get; set; }
-    public bool join { get; set; }
-    public Snake(int id, string name, List<Point2D> body, Point2D dir, int score, bool died, bool alive, bool dc, bool join)
+	[JsonInclude]
+	public int snake { get; set; }
+	[JsonInclude]
+	public string name { get; set; }
+	[JsonInclude]
+	public List<Point2D> body {get; set;}
+	[JsonInclude]
+	public Point2D dir { get; set;}
+	[JsonInclude]
+	public int score { get; set; }
+	[JsonInclude]
+	public bool died { get; set; }
+	[JsonInclude]
+	public bool alive { get; set; }
+	[JsonInclude]
+	public bool dc {  get; set; }
+	[JsonInclude]
+	public bool join { get; set; }
+    public Snake(int snake, string name, List<Point2D> body, Point2D dir, int score, bool died, bool alive, bool dc, bool join)
     {
-        this.snake = id;
+        this.snake = snake;
         this.name = name;
         this.body = body;
         this.dir = dir;

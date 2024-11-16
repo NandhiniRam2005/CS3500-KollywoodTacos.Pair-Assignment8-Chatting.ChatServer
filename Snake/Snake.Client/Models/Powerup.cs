@@ -1,10 +1,15 @@
-﻿namespace Snake.Client.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Snake.Client.Models;
 
 public class Powerup
 {
-    public int power {  get; set; }
-    public Point2D loc { get; set; }
-    public bool died { get; set; }
+	[JsonInclude]
+	public int power {  get; set; }
+	[JsonInclude]
+	public Point2D loc { get; set; }
+	[JsonInclude]
+	public bool died { get; set; }
     public Powerup(int power, Point2D loc, bool died)
     {
         this.power = power;

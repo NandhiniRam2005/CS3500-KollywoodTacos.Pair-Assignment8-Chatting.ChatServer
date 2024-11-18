@@ -18,6 +18,11 @@
     transform: scale(1.5);
 }
 
+#connectedInput
+{
+    background-color: lightgray;
+}
+
 .form-check-input
 {
     background-color: lightgray;

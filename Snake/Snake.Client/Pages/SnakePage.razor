@@ -9,6 +9,7 @@
 *@
 @rendermode InteractiveServer
 @implements IDisposable
+@inject IJSRuntime JS  // <remarks> Allows the "communication"/use of javascriptt </remarks>
 
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas
@@ -19,24 +20,47 @@
 @using Microsoft.Extensions.Logging.Abstractions
 @using System.Net.Sockets
 @using System.Text.Json
-@using global::Snake.Client.Models
+@using Snake.Client.Models
+@using Snake.Client.Controller
 
 @inject IJSRuntime JsRuntime;
 @inject ILogger<Program> Logger;
 
-<PageTitle> Networking Example</PageTitle>
+<PageTitle> SnakeGame </PageTitle>
 
-<h1>Lab 12 Example</h1>
-<p> Networking </p>
+<h1>Snake Game</h1>
+<p> Play Snake! </p>
 
 @if (!server.IsConnected)
 {
+	<label for="nameInput">Player Name:</label>
+	<input id="nameInput" @bind="Name" />
+	<label for="ServerAddress">Server Address:</label>
+	<input id="ServerAddress" @bind="ServerAddress" @onkeypress="handleKeyPress" />
+	<label for="Port">Port:</label>
+	<input id="Port" type="number" @bind="Port" />
+
 	<button class="btn btn-primary" @onclick="Connect">Connect</button>
+}
+else
+{
+	<label for="nameInput">Name:</label>
+	<input id="connectedInput" @bind="Name" readonly />
+	<label for="ServerAddress">Server Address:</label>
+	<input id="connectedInput" @bind="ServerAddress" readonly />
+	<label for="Port">Port:</label>
+	<input id="connectedInput" type="number" @bind="Port" readonly />
+
+	<button disabled class="btn btn-primary" @onclick="Connect">Connect</button>
 }
 
 <div id="myCanvas">
-	<BECanvas Width="500" Height="500" @ref="canvasReference" />
+	<BECanvas Width="1000" Height="1000" @ref="canvasReference" />
 </div>
+<img @ref="backgroundImage" id="backgroundImage" src="images/background.jpg" alt="image" style="display:none;" />
+<img @ref="wallImage" id="wallImage" src="images/cobblestone.jpg" alt="image" style="display:none;" />
+<img @ref="grassTerrain" id="grassTerrain" src="images/grassterrain.jpg" alt="image" style="display:none;" />
+
 
 @code
 {
@@ -45,13 +69,17 @@
 	private Canvas2DContext context = null!;
 
 	// GUI Model here:
-	private int GUIWidth = 800, GUIHeight = 800;
+	private int ViewWidth = 1000, ViewHeight = 1000;
 	private DateTime StartTime = DateTime.Now;
 	private int frameNumberGUI = 0;
 	private string errorMessage = string.Empty;
+	private ElementReference backgroundImage;
+	private ElementReference wallImage;
+	private ElementReference grassTerrain;
 
 	// WORLD Model here:
-	private World worldModel = new World();
+	private World world = new World();
+	private int snakeID;
 
 	// Controller Model here:
 	private IJSObjectReference _jsModule = null!;
@@ -61,6 +89,50 @@
 	private string networkStatus = "Waiting For You to Connect";
 	private int frameNumberNetwork = 0;
 	private DateTime ConnectTime = DateTime.Now;
+
+
+	private string nameBackingStore = "defaultPlayer";
+	private string Name {
+		get
+		{
+			return nameBackingStore;	
+		}
+		set
+		{
+			string name = value;
+			if(name.Length > 16 || name.Length == 0)
+			{
+				ShowInvalidNameMessage();
+			}
+			else
+			{
+				nameBackingStore = name;
+
+			}
+			StateHasChanged();
+		}
+	}
+	private string serverAddressBacking = "localhost";
+	private string ServerAddress {
+		get
+		{
+			return serverAddressBacking;
+		} 
+		set
+		{
+			string newAddress = value;
+			if(newAddress.Length == 0)
+			{
+				ShowInvalidServerAddressMessage();
+			}
+			else
+			{
+				serverAddressBacking = newAddress;
+			}
+		}
+	}
+
+	private int Port { get; set; } = 11_000;
 
 	/// <summary>
 	///   First step in the Blazor Page Life Cycle.  In some circumstances
@@ -102,7 +174,7 @@
 			networkStatus = "Connecting...";
 			try
 			{
-				server.Connect("localhost", 11000);
+				server.Connect(ServerAddress, Port);
 				networkStatus = "Connected";
 				ConnectTime = DateTime.Now;
 			}
@@ -120,9 +192,10 @@
 		// Once the server has connected do all this good stuff.
 		if (server.IsConnected)
 		{
-			server.Send("ImASnek\n"); // Sends the name of the snake.
-			server.ReadLine();
-			worldModel.WorldSize = int.Parse(server.ReadLine()); // Maybe switch tryParse
+			server.Send(Name); // Sends the name of the snake.
+			snakeID = int.Parse(server.ReadLine());
+			world.Height = int.Parse(server.ReadLine()); // Maybe switch tryParse
+			world.Width = world.Height;
 			await Task.Run(() =>
 			{
 				try
@@ -132,10 +205,15 @@
 
 						worldJSON = server.ReadLine();
 
-						lock (worldModel)
-						{
-							worldModel.load(worldJSON);
+						lock (world) // make a copy in the lock and then do the work on that copy
+						{ 
+							world.load(worldJSON);
+							jsonLinesPrinted++;
 
+						}
+						if(jsonLinesPrinted == 100)
+						{
+							jsonLinesPrinted++;
 						}
 					}
 				}
@@ -171,22 +249,44 @@
 			// Group all the draw commands into one large single draw.
 			await context.BeginBatchAsync();
 
-			// Draw Background.
-			await context.SetFillStyleAsync("darkblue");
-			await context.FillRectAsync(0, 0, GUIWidth, GUIHeight);
+			// clip the view so that objects drawn outside the canvas will not be shown
+			await context.BeginPathAsync();
+			await context.RectAsync(0, 0, ViewWidth, ViewHeight);
+			await context.ClipAsync();
 
-			// Draw "World Model" (i.e., rectangles)
-			List<Rectangle> worldCopy = new();
-			// lock (worldModel)
-			// {
-			// 	worldCopy = worldModel.ToList();
-			// }
+			// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
+			await context.SaveAsync();
+			int headX = world.Snakes[snakeID].body[0].X;
+			int headY = world.Snakes[snakeID].body[0].Y;
+			// Calculate offsets from world space
+			// double offsetX = -(headX - (ViewWidth / 2));
+			// double offsetY = -(headY - (ViewHeight / 2));
 
-			foreach (var rectangle in worldCopy)
+			// Center on origin, move to center of view port
+			// await context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+			// await context.TranslateAsync(-headX, -headY); //???
+
+			// Draw the background:
+			await context.DrawImageAsync(backgroundImage,-ViewWidth/2, ViewHeight/2, ViewWidth, ViewHeight);
+			await context.DrawImageAsync(grassTerrain, -world.Width / 2, -world.Height / 2, world.Width, world.Height);
+			foreach (Wall wall in world.Walls.Values)
 			{
-				await context.SetFillStyleAsync("lightblue");
-				await context.FillRectAsync(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+				// Our walls are not drwing in gui coords they are drawing in world coords. And then also our walls can be possibly very huge or not exisiting.
+				await context.DrawImageAsync(wallImage, wall.p1.X, wall.p1.Y, wall.p1.X - wall.p2.X + 50, wall.p1.Y - wall.p2.Y + 50);
 			}
+			foreach(Snake snake in world.Snakes.Values)
+			{
+				await context.SetFillStyleAsync("darkblue");
+				// This is only drawing one section of the snake if it had "L" shapes it just does the first section 
+				// Snake isnt drawing in world coords and snake could be non existent or huge.
+				await context.FillRectAsync(snake.body[0].X, snake.body[0].Y, snake.body[0].X - snake.body[1].X + 10, snake.body[0].Y - snake.body[1].Y + 10);
+			}
+			foreach(Powerup powerup in world.Powerups.Values)
+			{
+				await context.SetFillStyleAsync("darkblue");
+				await context.FillRectAsync(powerup.loc.X, powerup.loc.Y, 16, 16);
+			}
+
 
 			// Draw Heads Up Display - do this last so it is on top
 			await context.SetFontAsync("30px Arial");
@@ -194,7 +294,12 @@
 			await context.FillTextAsync($"G-Frame: {frameNumberGUI}", 10, 30);
 			await context.FillTextAsync($"N-Frame: {frameNumberNetwork}", 10, 60);
 			await context.FillTextAsync($"FPS: {fps:F1}", 400, 30);
-			await context.FillTextAsync($"NPS: {nps:F1}", 400, 60);
+			string playerNames = string.Empty;
+			foreach (Snake snakePlayer in world.Snakes.Values)
+			{
+				playerNames = playerNames + snakePlayer.name + ", ";
+			}
+			await context.FillTextAsync("Players: " + playerNames, 400, 60);
 			await context.FillTextAsync($"Elapsed: {timeInSeconds:F0} seconds", 550, 30);
 			await context.FillTextAsync($"Network: {networkStatus}", 10, 90);
 			await context.FillTextAsync($"{errorMessage}", 10, 120);
@@ -222,8 +327,8 @@
 	public void ResizeInBlazor(int width, int height)
 	{
 		Logger.LogTrace("Resizing the web page. {width} {height}", width, height);
-		GUIWidth = Math.Min(Math.Max(100, width), 1000);
-		GUIHeight = Math.Min(Math.Max(100, height), 1000);
+		ViewWidth = Math.Min(Math.Max(100, width), 1000);
+		ViewHeight = Math.Min(Math.Max(100, height), 1000);
 	}
 
 	/// <summary>
@@ -235,5 +340,28 @@
 	public void Dispose()
 	{
 		_jsModule.InvokeVoidAsync("ToggleAnimation", false);
+	}
+	public void handleKeyPress()
+	{
+		//Code for handing 
+		//Send the key that was pressed to the server (says in assignment maybe?)
+	}
+	/// <summary>
+	///  Shows invalid message when name change is invalid
+	/// </summary>
+	private async void ShowInvalidNameMessage()
+	{
+		// We need this helper method to be async which is why we can't directly have this line of code in the NameWidget setter.
+		await JS.InvokeVoidAsync("alert", "Name must be less than 16 charchters in length and at least 1 character long. Try again.");
+
+	}
+	/// <summary>
+	///  Shows invalid message when Server Address change is invalid
+	/// </summary>
+	private async void ShowInvalidServerAddressMessage()
+	{
+		// We need this helper method to be async which is why we can't directly have this line of code in the NameWidget setter.
+		await JS.InvokeVoidAsync("alert", "Server address must be of at least length one.");
+
 	}
 }

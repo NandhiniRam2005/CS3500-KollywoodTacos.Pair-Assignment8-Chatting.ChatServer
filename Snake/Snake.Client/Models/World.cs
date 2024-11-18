@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: json Powerups
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Snake.Client.Models;
 
@@ -10,15 +11,19 @@ public class World
     public Dictionary<int, Snake> Snakes { get; set; }
     public Dictionary<int, Powerup> Powerups { get; set; }
 
-    public int WorldSize { get; set; }
+    [JsonIgnore]
+    public int Width { get; set; }
+	[JsonIgnore]
+	public int Height { get; set; }
 
-    public World() 
+	public World() 
     { 
         Walls = new Dictionary<int, Wall>();
         Snakes = new Dictionary<int, Snake>();
         Powerups = new Dictionary<int, Powerup>();
-        WorldSize = 0;
-    }
+        Height = 0;
+		Width = 0;
+	}
 
     public void load(string jsonString)
     {

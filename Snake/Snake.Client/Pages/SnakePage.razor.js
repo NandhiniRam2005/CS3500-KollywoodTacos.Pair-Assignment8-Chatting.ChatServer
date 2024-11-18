@@ -3,6 +3,7 @@ var framecount = 0;
 var animationFrameId = 0;
 var animating = false;
 
+
 export function ToggleAnimation( on )
 {
     console.log("N: Toggle Animation " + on);

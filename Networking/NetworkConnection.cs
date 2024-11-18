@@ -122,6 +122,7 @@ public sealed class NetworkConnection : IDisposable
         catch
         {
             _logger.LogError("Client failed to connect which resulted in error. Possible reasons could be loss of Internet connection.");
+            throw new InvalidOperationException("An error occurred while connecting!");
         }
     }
 

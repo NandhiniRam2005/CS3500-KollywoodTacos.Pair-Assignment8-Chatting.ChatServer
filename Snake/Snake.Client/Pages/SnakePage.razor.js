@@ -85,7 +85,12 @@ document.addEventListener('keydown', function (event)
     console.log('Key pressed:', event.key);
 
     // Call the C# method and pass the key pressed
-    // DotNetSide.invokeMethodAsync('HandleKeyPress', event.key);
+    console.log("Hellllooeehgvfcdxcfghjikjhgfcdfghujikjuhgfdcfghjkjhgfcdfghjkjhgfdcxfghjkjhgfcdfghiojuhgfcdfghjhgfg");
+
+    DotNetSide.invokeMethodAsync('HandleKeyPress', event.key);
+
+    console.log("Hellllooeehgvfcdxcfghjikjhgfcdfghujikjuhgfdcfghjkjhgfcdfghjkjhgfdcxfghjkjhgfcdfghiojuhgfcdfghjhgfg");
+  
 });
 
 /**

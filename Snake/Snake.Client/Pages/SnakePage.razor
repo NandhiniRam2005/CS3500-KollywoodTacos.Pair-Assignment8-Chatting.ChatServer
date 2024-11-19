@@ -36,7 +36,7 @@
 	<label for="nameInput">Player Name:</label>
 	<input id="nameInput" @bind="Name" />
 	<label for="ServerAddress">Server Address:</label>
-	<input id="ServerAddress" @bind="ServerAddress" @onkeypress="handleKeyPress" />
+	<input id="ServerAddress" @bind="ServerAddress" />
 	<label for="Port">Port:</label>
 	<input id="Port" type="number" @bind="Port" />
 
@@ -44,7 +44,7 @@
 }
 else
 {
-	<label for="nameInput">Name:</label>
+	<label for="nameInput">Name: </label>
 	<input id="connectedInput" @bind="Name" readonly />
 	<label for="ServerAddress">Server Address:</label>
 	<input id="connectedInput" @bind="ServerAddress" readonly />
@@ -246,6 +246,11 @@ else
 		double fps = frameNumberGUI / (double)(DateTime.Now - StartTime).TotalSeconds;
 		double nps = frameNumberNetwork / (double)(DateTime.Now - ConnectTime).TotalSeconds;
 		int timeInSeconds = (int)(timeStamp / 1000);
+		World worldCopy;
+		lock (world)
+		{
+			worldCopy = world;
+		}
 
 		try
 		{
@@ -259,22 +264,22 @@ else
 
 			// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
 			await context.SaveAsync();
-			int headX = world.Snakes[snakeID].body[0].X;
-			int headY = world.Snakes[snakeID].body[0].Y;
-			// Calculate offsets from world space
+			int headX = worldCopy.Snakes[snakeID].body[0].X;
+			int headY = worldCopy.Snakes[snakeID].body[0].Y;
+			// Calculate offsets from worldCopy space
 			double offsetX = -(headX - (ViewWidth / 2));
 			double offsetY = -(headY - (ViewHeight / 2));
 
 			// Center on origin, move to center of view port
-			// await context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
-			await context.TranslateAsync(offsetX, offsetY); //???
+			await context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
+			await context.TranslateAsync(-headX, -headY); //???
 
 			// Draw the background:
-			await context.DrawImageAsync(backgroundImage,-ViewWidth/2, ViewHeight/2, ViewWidth, ViewHeight);
-			await context.DrawImageAsync(grassTerrain, -world.Width / 2, -world.Height / 2, world.Width, world.Height);
-			foreach (Wall wall in world.Walls.Values)
+			// await context.DrawImageAsync(backgroundImage,-ViewWidth/2, ViewHeight/2, ViewWidth, ViewHeight);
+			await context.DrawImageAsync(grassTerrain, -worldCopy.Width / 2, -worldCopy.Height / 2, worldCopy.Width, worldCopy.Height);
+			foreach (Wall wall in worldCopy.Walls.Values)
 			{
-				// Our walls are not drwing in gui coords they are drawing in world coords. And then also our walls can be possibly very huge or not exisiting.
+				// Our walls are not drwing in gui coords they are drawing in worldCopy coords. And then also our walls can be possibly very huge or not exisiting.
 				//await context.DrawImageAsync(wallImage, wall.p1.X, wall.p1.Y, wall.p1.X - wall.p2.X + 50, wall.p1.Y - wall.p2.Y + 50);
 
 				int bottomLeftCornerX = Math.Min(wall.p1.X, wall.p2.X);
@@ -289,17 +294,19 @@ else
 			//await context.RestoreAsync();
 
 
-			foreach(Snake snake in world.Snakes.Values)
+			foreach(Snake snake in worldCopy.Snakes.Values)
 			{
 				await context.SetFillStyleAsync("darkblue");
 				// This is only drawing one section of the snake if it had "L" shapes it just does the first section 
-				// Snake isnt drawing in world coords and snake could be non existent or huge.
+				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
 				await context.FillRectAsync(snake.body[0].X, snake.body[0].Y, snake.body[0].X - snake.body[1].X + 10, snake.body[0].Y - snake.body[1].Y + 10);
 			}
-			foreach(Powerup powerup in world.Powerups.Values)
+			foreach(Powerup powerup in worldCopy.Powerups.Values)
 			{
+				await context.BeginPathAsync();
 				await context.SetFillStyleAsync("darkblue");
-				await context.FillRectAsync(powerup.loc.X, powerup.loc.Y, 16, 16);
+				await context.ArcAsync(powerup.loc.X, powerup.loc.Y,8, 0, 2 * Math.PI);
+				await context.FillAsync();
 			}
 
 
@@ -313,7 +320,7 @@ else
 			await context.FillTextAsync($"N-Frame: {frameNumberNetwork}", 10, 60);
 			await context.FillTextAsync($"FPS: {fps:F1}", 400, 30);
 			string playerNames = string.Empty;
-			foreach (Snake snakePlayer in world.Snakes.Values)
+			foreach (Snake snakePlayer in worldCopy.Snakes.Values)
 			{
 				playerNames = playerNames + snakePlayer.name + ", ";
 			}
@@ -359,26 +366,27 @@ else
 	{
 		_jsModule.InvokeVoidAsync("ToggleAnimation", false);
 	}
-	public void handleKeyPress(KeyboardEventArgs keyEvent)
+
+	public void HandleKeyPress(KeyboardEventArgs keyEvent)
 	{
 		//Code for handing 
 		//Send the key that was pressed to the server (says in assignment maybe?)
 
 		if (keyEvent.Key == "ArrowUp" || keyEvent.Key == "w" && snakeDirection != "DOWN")
 		{
-			snakeDirection = "up";
+			server.Send(@"{ ""moving"":""up""}");
 		}
 		else if (keyEvent.Key == "ArrowDown" || keyEvent.Key == "s" && snakeDirection != "UP")
 		{
-			snakeDirection = "down";
+			server.Send(@"{ ""moving"":""down""}");
 		}
 		else if (keyEvent.Key == "ArrowLeft" || keyEvent.Key == "a" && snakeDirection != "RIGHT")
 		{
-			snakeDirection = "left";
+			server.Send(@"{ ""moving"":""left""}");
 		}
 		else if (keyEvent.Key == "ArrowRight" || keyEvent.Key == "d" && snakeDirection != "LEFT")
 		{
-			snakeDirection = "right";
+			server.Send(@"{ ""moving"":""right""}");
 		}
 	}
 	/// <summary>

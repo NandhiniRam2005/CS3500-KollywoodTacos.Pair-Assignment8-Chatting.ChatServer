@@ -31,8 +31,9 @@
 <h1>Snake Game</h1>
 <p> Play Snake! </p>
 
-@if (!server.IsConnected)
+@if (!networkController.server.IsConnected)
 {
+	<div>
 	<label for="nameInput">Player Name:</label>
 	<input id="nameInput" @bind="Name" />
 	<label for="ServerAddress">Server Address:</label>
@@ -41,9 +42,13 @@
 	<input id="Port" type="number" @bind="Port" />
 
 	<button class="btn btn-primary" @onclick="Connect">Connect</button>
+	</div>
+	<label for="ConnectionStatus">ConnectionStatus: </label>
+	<input id="connectionStatus" @bind="networkController.networkStatus" readonly />
 }
 else
 {
+	<div>
 	<label for="nameInput">Name: </label>
 	<input id="connectedInput" @bind="Name" readonly />
 	<label for="ServerAddress">Server Address:</label>
@@ -52,6 +57,9 @@ else
 	<input id="connectedInput" type="number" @bind="Port" readonly />
 
 	<button disabled class="btn btn-primary" @onclick="Connect">Connect</button>
+	</div>
+	<label for="ConnectionStatus">ConnectionStatus: </label>
+	<input id="connectionStatus" @bind="networkController.networkStatus" readonly />
 }
 
 <div id="myCanvas">
@@ -78,18 +86,20 @@ else
 	private ElementReference grassTerrain;
 
 	// WORLD Model here:
-	private World world = new World();
+	private World world = new World(new Dictionary<int, Wall>(), new Dictionary<int, Snake>(), new Dictionary<int, Powerup>(), 0,0,0);
 	private int snakeID;
 
 	// Controller Model here:
 	private IJSObjectReference _jsModule = null!;
 
 	// Network model
-	private NetworkConnection server = new(NullLogger.Instance);
-	private string networkStatus = "Waiting For You to Connect";
+	private NetworkController networkController = new NetworkController();
+	// private NetworkConnection server = new(NullLogger.Instance);
+	// private string networkStatus = "Waiting For You to Connect";
 	private int frameNumberNetwork = 0;
 	private DateTime ConnectTime = DateTime.Now;
-
+	private bool networkConnected = false;
+	private string connectionStatus = "Not connected";
 
 	private String snakeDirection = "Up";
 
@@ -169,62 +179,12 @@ else
 	/// <summary>
 	///   Attempt to connect to the server and begin the drawing process.
 	/// </summary>
-	private async void Connect()
+	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
-
-		await Task.Run(() =>
-		{
-			errorMessage = string.Empty;
-			networkStatus = "Connecting...";
-			try
-			{
-				server.Connect(ServerAddress, Port);
-				networkStatus = "Connected";
-				ConnectTime = DateTime.Now;
-			}
-			catch (Exception e)
-			{
-				errorMessage = e.Message;
-				networkStatus = "Error";
-			}
-		});
-
+		networkController.HandleNetwork(world, ServerAddress, Port, Name);
 		StateHasChanged();
 
-		var worldJSON = "";
-		// Once the server has connected do all this good stuff.
-		if (server.IsConnected)
-		{
-			server.Send(Name); // Sends the name of the snake.
-			snakeID = int.Parse(server.ReadLine());
-			world.Height = int.Parse(server.ReadLine()); // Maybe switch tryParse
-			world.Width = world.Height;
-			await Task.Run(() =>
-			{
-				try
-				{
-					while (true)
-					{
-
-						worldJSON = server.ReadLine();
-
-						lock (world) // make a copy in the lock and then do the work on that copy
-						{
-							world.load(worldJSON);
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					errorMessage = e.Message;
-					networkStatus = "Error";
-				}
-
-				Logger.LogError("Connection must have failed.");
-				server.Disconnect();
-			});
-		}
 	}
 
 	/// <summary>
@@ -243,16 +203,17 @@ else
 		double nps = frameNumberNetwork / (double)(DateTime.Now - ConnectTime).TotalSeconds;
 		int timeInSeconds = (int)(timeStamp / 1000);
 		World worldCopy;
-		lock (world)
-		{
-			worldCopy = world;
-		}
 
 		try
 		{
+			lock (world)
+			{
+				worldCopy = new World(world.Walls, world.Snakes, world.Powerups, world.Width, world.Height, world.WorldID);
+			}
+
 			// Group all the draw commands into one large single draw.
-			int headX = worldCopy.Snakes[snakeID].body[1].X;
-			int headY = worldCopy.Snakes[snakeID].body[1].Y;
+			int headX = worldCopy.Snakes[world.WorldID].body[^1].X;
+			int headY = worldCopy.Snakes[world.WorldID].body[^1].Y;
 
 			await context.BeginBatchAsync();
 
@@ -269,7 +230,7 @@ else
 			// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
 			await context.SaveAsync();
 
-			
+
 			// Calculate offsets from worldCopy space
 			double offsetX = -(headX - (ViewWidth / 2));
 			double offsetY = -(headY - (ViewHeight / 2));
@@ -296,7 +257,44 @@ else
 
 			foreach (Snake snake in worldCopy.Snakes.Values)
 			{
-				await context.SetFillStyleAsync("darkblue");
+				switch (snake.snake%8)
+				{
+					case 0:
+						await context.SetFillStyleAsync("darkblue");
+						await context.SetStrokeStyleAsync("darkred");
+						break;
+					case 1:
+						await context.SetFillStyleAsync("orange");
+						await context.SetStrokeStyleAsync("lightgreen");
+						break;
+					case 2:
+						await context.SetFillStyleAsync("black");
+						await context.SetStrokeStyleAsync("darkgrey");
+						break; 
+					case 3:
+						await context.SetFillStyleAsync("magenta");
+						await context.SetStrokeStyleAsync("cyan");
+						break;
+					case 4:
+						await context.SetFillStyleAsync("red");
+						await context.SetStrokeStyleAsync("blue");
+						break;
+					case 5:
+						await context.SetFillStyleAsync("pink");
+						await context.SetStrokeStyleAsync("purple");
+						break;
+					case 6:
+						await context.SetFillStyleAsync("purple");
+						await context.SetStrokeStyleAsync("pink");
+						break;
+					case 7:
+						await context.SetFillStyleAsync("cyan");
+						await context.SetStrokeStyleAsync("magenta");
+						break;
+					default:
+						break;
+				}
+
 				// This is only drawing one section of the snake if it had "L" shapes it just does the first section
 				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
 
@@ -310,17 +308,51 @@ else
 					int snakePartHeight = Math.Abs(snake.body[i].Y - snake.body[i + 1].Y) + 10;
 
 					await context.FillRectAsync(bottomLeftCornerX - 5, bottomLeftCornerY - 5, snakePartWidth, snakePartHeight);
-
+					await context.StrokeRectAsync(bottomLeftCornerX - 5, bottomLeftCornerY - 5, snakePartWidth, snakePartHeight);
 					//await context.FillRectAsync(snake.body[i].X, snake.body[i].Y, snake.body[i+1].X - snake.body[i].X + 10, snake.body[i+1].Y - snake.body[i].Y);
 
+				}
+				int currentSnakeHeadX = 0;
+				int currentSnakeHeadY = 0;
+				foreach (Snake currentSnake in worldCopy.Snakes.Values) 
+				{
+					currentSnakeHeadX = worldCopy.Snakes[currentSnake.snake].body[^1].X;
+					currentSnakeHeadY = worldCopy.Snakes[currentSnake.snake].body[^1].Y;
+					await context.SetFontAsync("20px Arial");
+					await context.SetFillStyleAsync("white");
+					switch (currentSnake.dir.X)
+					{
+						case 1:
+							await context.FillTextAsync($"{currentSnake.name} : {currentSnake.score}", currentSnakeHeadX - (currentSnake.name.Length * 8), currentSnakeHeadY - (currentSnake.name.Length * 2));
+							break;
+						case -1:
+							await context.FillTextAsync($"{currentSnake.name} : {currentSnake.score}", currentSnakeHeadX - (currentSnake.name.Length * 2), currentSnakeHeadY - (currentSnake.name.Length * 2));
+							break;
+						default:
+							switch (currentSnake.dir.Y)
+							{
+								case 1:
+									await context.FillTextAsync($"{currentSnake.name} : {currentSnake.score}", currentSnakeHeadX - (currentSnake.name.Length * 6), currentSnakeHeadY - (currentSnake.name.Length * 3));
+									break;
+								case -1:
+									await context.FillTextAsync($"{currentSnake.name} : {currentSnake.score}", currentSnakeHeadX - (currentSnake.name.Length * 6), currentSnakeHeadY + (currentSnake.name.Length * 3));
+									break;
+								default:
+									break;
+							}
+							break;
+
+					}
 				}
 			}
 			foreach (Powerup powerup in worldCopy.Powerups.Values)
 			{
 				await context.BeginPathAsync();
-				await context.SetFillStyleAsync("darkblue");
+				await context.SetFillStyleAsync("red");
+				await context.SetStrokeStyleAsync("black");
 				await context.ArcAsync(powerup.loc.X, powerup.loc.Y, 8, 0, 2 * Math.PI);
 				await context.FillAsync();
+				await context.StrokeAsync();
 			}
 
 
@@ -333,15 +365,23 @@ else
 			await context.FillTextAsync($"G-Frame: {frameNumberGUI}", 10, 30);
 			await context.FillTextAsync($"N-Frame: {frameNumberNetwork}", 10, 60);
 			await context.FillTextAsync($"FPS: {fps:F1}", 400, 30);
-			string playerNames = string.Empty;
+			string playerNamesAndScores = string.Empty;
 			foreach (Snake snakePlayer in worldCopy.Snakes.Values)
 			{
-				playerNames = playerNames + snakePlayer.name + ", ";
+				playerNamesAndScores = playerNamesAndScores + snakePlayer.name + " Score: " + snakePlayer.score + "\n";
 			}
-			await context.FillTextAsync("Players: " + playerNames, 400, 60);
+
+			float x = 400;
+			float y = 60; 
+			float lineHeight = 30; 
+
+			foreach (string line in playerNamesAndScores.Split('\n'))
+			{
+				await context.FillTextAsync(line, x, y);
+				y += lineHeight; 
+			}
+
 			await context.FillTextAsync($"Elapsed: {timeInSeconds:F0} seconds", 550, 30);
-			await context.FillTextAsync($"Network: {networkStatus}", 10, 90);
-			await context.FillTextAsync($"{errorMessage}", 10, 120);
 
 			await context.EndBatchAsync();
 		}
@@ -349,6 +389,7 @@ else
 		{
 
 		}
+		Debug.WriteLine("Hello");
 	}
 
 	/// <summary>
@@ -384,24 +425,7 @@ else
 	[JSInvokable]
 	public void HandleKeyPress(String keyEvent)
 	{
-		//Code for handing
-		//Send the key that was pressed to the server (says in assignment maybe?)
-		if (keyEvent == "ArrowUp" || keyEvent == "w" && snakeDirection != "DOWN")
-		{
-			server.Send(@"{""moving"":""up""}");
-		}
-		else if (keyEvent == "ArrowDown" || keyEvent == "s" && snakeDirection != "UP")
-		{
-			server.Send(@"{""moving"":""down""}");
-		}
-		else if (keyEvent == "ArrowLeft" || keyEvent == "a" && snakeDirection != "RIGHT")
-		{
-			server.Send(@"{""moving"": ""left""}");
-		}
-		else if (keyEvent == "ArrowRight" || keyEvent == "d" && snakeDirection != "LEFT")
-		{
-			server.Send(@"{""moving"":""right""}");
-		}
+		networkController.HandleKeyPress(keyEvent);
 	}
 	/// <summary>
 	///  Shows invalid message when name change is invalid
@@ -424,11 +448,11 @@ else
 	[JSInvokable]
 	public void HandleUserLeaving()
 	{
-		server.Disconnect();
-		server = new(NullLogger.Instance);
+		networkController.server.Disconnect();
+		networkController.server = new(NullLogger.Instance);
 		lock (world)
 		{
-			world.Snakes.Remove(snakeID);
+			world.Snakes.Remove(world.WorldID);
 		}
 	}
 }

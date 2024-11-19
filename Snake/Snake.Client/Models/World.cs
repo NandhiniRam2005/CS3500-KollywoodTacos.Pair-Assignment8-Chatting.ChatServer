@@ -16,16 +16,19 @@ public class World
 	[JsonIgnore]
 	public int Height { get; set; }
 
-	public World() 
-    { 
-        Walls = new Dictionary<int, Wall>();
-        Snakes = new Dictionary<int, Snake>();
-        Powerups = new Dictionary<int, Powerup>();
-        Height = 0;
-		Width = 0;
+    public int WorldID { get; set; }
+
+	public World(Dictionary<int, Wall> Walls, Dictionary<int, Snake> Snakes, Dictionary<int, Powerup> Powerups, int width, int height, int worldID)
+	{
+        this.Walls = Walls;
+        this.Snakes = Snakes;
+        this.Powerups = Powerups;
+		this.Height = height;
+		this.Width = width;
+		this.WorldID = worldID;
 	}
 
-    public void load(string jsonString)
+	public void load(string jsonString)
     {
         if (jsonString.StartsWith(@"{""wall"""))
         {

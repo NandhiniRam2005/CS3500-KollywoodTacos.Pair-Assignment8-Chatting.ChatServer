@@ -3,6 +3,12 @@ using Snake.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddServerSideBlazor()
+	.AddCircuitOptions(options =>
+	{
+		options.DetailedErrors = true; // Enable detailed errors
+	});
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents()

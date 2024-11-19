@@ -264,6 +264,7 @@ else
 
 			// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
 			await context.SaveAsync();
+
 			int headX = worldCopy.Snakes[snakeID].body[0].X;
 			int headY = worldCopy.Snakes[snakeID].body[0].Y;
 			// Calculate offsets from worldCopy space
@@ -367,26 +368,26 @@ else
 		_jsModule.InvokeVoidAsync("ToggleAnimation", false);
 	}
 
-	public void HandleKeyPress(KeyboardEventArgs keyEvent)
+	[JSInvokable]
+	public void HandleKeyPress(String keyEvent)
 	{
 		//Code for handing 
 		//Send the key that was pressed to the server (says in assignment maybe?)
-
-		if (keyEvent.Key == "ArrowUp" || keyEvent.Key == "w" && snakeDirection != "DOWN")
+		if (keyEvent == "ArrowUp" || keyEvent == "w" && snakeDirection != "DOWN")
 		{
-			server.Send(@"{ ""moving"":""up""}");
+			server.Send(@"{""moving"":""up""}");
 		}
-		else if (keyEvent.Key == "ArrowDown" || keyEvent.Key == "s" && snakeDirection != "UP")
+		else if (keyEvent == "ArrowDown" || keyEvent == "s" && snakeDirection != "UP")
 		{
-			server.Send(@"{ ""moving"":""down""}");
+			server.Send(@"{""moving"":""down""}");
 		}
-		else if (keyEvent.Key == "ArrowLeft" || keyEvent.Key == "a" && snakeDirection != "RIGHT")
+		else if (keyEvent == "ArrowLeft" || keyEvent == "a" && snakeDirection != "RIGHT")
 		{
-			server.Send(@"{ ""moving"":""left""}");
+			server.Send(@"{""moving"": ""left""}");
 		}
-		else if (keyEvent.Key == "ArrowRight" || keyEvent.Key == "d" && snakeDirection != "LEFT")
+		else if (keyEvent == "ArrowRight" || keyEvent == "d" && snakeDirection != "LEFT")
 		{
-			server.Send(@"{ ""moving"":""right""}");
+			server.Send(@"{""moving"":""right""}");
 		}
 	}
 	/// <summary>

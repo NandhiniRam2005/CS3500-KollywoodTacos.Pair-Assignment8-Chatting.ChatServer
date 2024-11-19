@@ -82,14 +82,10 @@ export function initJS( DotNetSide )
 document.addEventListener('keydown', function (event)
 {
     // Optionally log the key for testing
-    console.log('Key pressed:', event.key);
+    //console.log('Key pressed:', event.key);
 
     // Call the C# method and pass the key pressed
-    console.log("Hellllooeehgvfcdxcfghjikjhgfcdfghujikjuhgfdcfghjkjhgfcdfghjkjhgfdcxfghjkjhgfcdfghiojuhgfcdfghjhgfg");
-
     DotNetSide.invokeMethodAsync('HandleKeyPress', event.key);
-
-    console.log("Hellllooeehgvfcdxcfghjikjhgfcdfghujikjuhgfdcfghjkjhgfcdfghjkjhgfdcxfghjkjhgfcdfghiojuhgfcdfghjhgfg");
   
 });
 

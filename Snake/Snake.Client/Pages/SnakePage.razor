@@ -294,7 +294,7 @@ else
 				int wallWidth = Math.Abs(wall.p1.X - wall.p2.X) + 50;
 				int wallHeight = Math.Abs(wall.p1.Y - wall.p2.Y) + 50;
 
-				await context.DrawImageAsync(wallImage, bottomLeftCornerX, bottomLeftCornerY, wallWidth, wallHeight);
+				await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
 			}
 
 			//await context.RestoreAsync();

@@ -257,6 +257,11 @@ else
 			// Group all the draw commands into one large single draw.
 			await context.BeginBatchAsync();
 
+			//DRAW BG BEFORE APPARNTLY GOTTA CLEAR STUFF EVERY FRAME :-\
+			await context.ClearRectAsync(0, 0, ViewWidth, ViewHeight);
+			await context.SetFillStyleAsync("lightblue");
+			await context.FillRectAsync(0, 0, ViewWidth, ViewHeight);
+
 			// clip the view so that objects drawn outside the canvas will not be shown
 			await context.BeginPathAsync();
 			await context.RectAsync(0, 0, ViewWidth, ViewHeight);

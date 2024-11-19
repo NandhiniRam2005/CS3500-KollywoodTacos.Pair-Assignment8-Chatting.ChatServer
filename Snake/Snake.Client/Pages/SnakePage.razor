@@ -91,6 +91,9 @@ else
 	private DateTime ConnectTime = DateTime.Now;
 
 
+	private String snakeDirection = "Up";
+
+
 	private string nameBackingStore = "defaultPlayer";
 	private string Name {
 		get
@@ -259,12 +262,12 @@ else
 			int headX = world.Snakes[snakeID].body[0].X;
 			int headY = world.Snakes[snakeID].body[0].Y;
 			// Calculate offsets from world space
-			// double offsetX = -(headX - (ViewWidth / 2));
-			// double offsetY = -(headY - (ViewHeight / 2));
+			double offsetX = -(headX - (ViewWidth / 2));
+			double offsetY = -(headY - (ViewHeight / 2));
 
 			// Center on origin, move to center of view port
 			// await context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
-			// await context.TranslateAsync(-headX, -headY); //???
+			await context.TranslateAsync(offsetX, offsetY); //???
 
 			// Draw the background:
 			await context.DrawImageAsync(backgroundImage,-ViewWidth/2, ViewHeight/2, ViewWidth, ViewHeight);
@@ -272,8 +275,20 @@ else
 			foreach (Wall wall in world.Walls.Values)
 			{
 				// Our walls are not drwing in gui coords they are drawing in world coords. And then also our walls can be possibly very huge or not exisiting.
-				await context.DrawImageAsync(wallImage, wall.p1.X, wall.p1.Y, wall.p1.X - wall.p2.X + 50, wall.p1.Y - wall.p2.Y + 50);
+				//await context.DrawImageAsync(wallImage, wall.p1.X, wall.p1.Y, wall.p1.X - wall.p2.X + 50, wall.p1.Y - wall.p2.Y + 50);
+
+				int bottomLeftCornerX = Math.Min(wall.p1.X, wall.p2.X);
+				int bottomLeftCornerY = Math.Min(wall.p1.Y, wall.p2.Y);
+
+				int wallWidth = Math.Abs(wall.p1.X - wall.p2.X) + 50;
+				int wallHeight = Math.Abs(wall.p1.Y - wall.p2.Y) + 50;
+
+				await context.DrawImageAsync(wallImage, bottomLeftCornerX, bottomLeftCornerY, wallWidth, wallHeight);
 			}
+
+			//await context.RestoreAsync();
+
+
 			foreach(Snake snake in world.Snakes.Values)
 			{
 				await context.SetFillStyleAsync("darkblue");
@@ -286,6 +301,9 @@ else
 				await context.SetFillStyleAsync("darkblue");
 				await context.FillRectAsync(powerup.loc.X, powerup.loc.Y, 16, 16);
 			}
+
+
+			await context.RestoreAsync();
 
 
 			// Draw Heads Up Display - do this last so it is on top
@@ -341,10 +359,27 @@ else
 	{
 		_jsModule.InvokeVoidAsync("ToggleAnimation", false);
 	}
-	public void handleKeyPress()
+	public void handleKeyPress(KeyboardEventArgs keyEvent)
 	{
 		//Code for handing 
 		//Send the key that was pressed to the server (says in assignment maybe?)
+
+		if (keyEvent.Key == "ArrowUp" || keyEvent.Key == "w" && snakeDirection != "DOWN")
+		{
+			snakeDirection = "up";
+		}
+		else if (keyEvent.Key == "ArrowDown" || keyEvent.Key == "s" && snakeDirection != "UP")
+		{
+			snakeDirection = "down";
+		}
+		else if (keyEvent.Key == "ArrowLeft" || keyEvent.Key == "a" && snakeDirection != "RIGHT")
+		{
+			snakeDirection = "left";
+		}
+		else if (keyEvent.Key == "ArrowRight" || keyEvent.Key == "d" && snakeDirection != "LEFT")
+		{
+			snakeDirection = "right";
+		}
 	}
 	/// <summary>
 	///  Shows invalid message when name change is invalid

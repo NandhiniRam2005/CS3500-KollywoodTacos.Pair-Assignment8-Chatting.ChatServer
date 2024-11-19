@@ -294,15 +294,25 @@ else
 				await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
 			}
 
-
 			foreach (Snake snake in worldCopy.Snakes.Values)
 			{
 				await context.SetFillStyleAsync("darkblue");
 				// This is only drawing one section of the snake if it had "L" shapes it just does the first section
 				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
-				for (int i = 0; i < snake.body.Count / 2; i+=2)
+
+				// for (int i = 0; i < snake.body.Count / 2; i+=2)
+				for (int i = 0; i < snake.body.Count - 1; i ++)
 				{
-					await context.FillRectAsync(snake.body[i].X, snake.body[i].Y, snake.body[i+1].X - snake.body[i].X + 10, snake.body[i+1].Y - snake.body[i].Y);
+					int bottomLeftCornerX = Math.Min(snake.body[i].X, snake.body[i + 1].X);
+					int bottomLeftCornerY = Math.Min(snake.body[i].Y, snake.body[i + 1].Y);
+
+					int snakePartWidth = Math.Abs(snake.body[i].X - snake.body[i + 1].X) + 10;
+					int snakePartHeight = Math.Abs(snake.body[i].Y - snake.body[i + 1].Y) + 10;
+
+					await context.FillRectAsync(bottomLeftCornerX - 5, bottomLeftCornerY - 5, snakePartWidth, snakePartHeight);
+
+					//await context.FillRectAsync(snake.body[i].X, snake.body[i].Y, snake.body[i+1].X - snake.body[i].X + 10, snake.body[i+1].Y - snake.body[i].Y);
+
 				}
 			}
 			foreach (Powerup powerup in worldCopy.Powerups.Values)

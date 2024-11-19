@@ -97,3 +97,17 @@ window.addEventListener("unload", () =>
     console.log("Networked JS: leaving page.");
     animating = false;
 });
+
+window.addEventListener("beforeunload", () => {
+    console.log("Networked JS: leaving page.");
+
+    try {
+        DotNetSide.invokeMethodAsync('HandleUserLeaving');
+    } catch (error) {
+        console.error("Error invoking .NET method on beforeunload:", error);
+    }
+});
+
+
+
+

@@ -191,7 +191,6 @@ else
 		StateHasChanged();
 
 		var worldJSON = "";
-		int jsonLinesPrinted = 0;
 		// Once the server has connected do all this good stuff.
 		if (server.IsConnected)
 		{
@@ -211,12 +210,6 @@ else
 						lock (world) // make a copy in the lock and then do the work on that copy
 						{ 
 							world.load(worldJSON);
-							jsonLinesPrinted++;
-
-						}
-						if(jsonLinesPrinted == 100)
-						{
-							jsonLinesPrinted++;
 						}
 					}
 				}
@@ -227,6 +220,7 @@ else
 				}
 
 				Logger.LogError("Connection must have failed.");
+				server.Disconnect();
 			});
 		}
 	}
@@ -412,5 +406,15 @@ else
 		// We need this helper method to be async which is why we can't directly have this line of code in the NameWidget setter.
 		await JS.InvokeVoidAsync("alert", "Server address must be of at least length one.");
 
+	}
+	[JSInvokable]
+	public void HandleUserLeaving()
+	{
+		server.Disconnect();
+		server = new(NullLogger.Instance);
+		lock (world)
+		{
+			world.Snakes.Remove(snakeID);
+		}
 	}
 }

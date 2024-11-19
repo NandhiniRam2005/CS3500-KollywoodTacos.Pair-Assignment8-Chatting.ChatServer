@@ -95,15 +95,16 @@ else
 
 
 	private string nameBackingStore = "defaultPlayer";
-	private string Name {
+	private string Name
+	{
 		get
 		{
-			return nameBackingStore;	
+			return nameBackingStore;
 		}
 		set
 		{
 			string name = value;
-			if(name.Length > 16 || name.Length == 0)
+			if (name.Length > 16 || name.Length == 0)
 			{
 				ShowInvalidNameMessage();
 			}
@@ -116,15 +117,16 @@ else
 		}
 	}
 	private string serverAddressBacking = "localhost";
-	private string ServerAddress {
+	private string ServerAddress
+	{
 		get
 		{
 			return serverAddressBacking;
-		} 
+		}
 		set
 		{
 			string newAddress = value;
-			if(newAddress.Length == 0)
+			if (newAddress.Length == 0)
 			{
 				ShowInvalidServerAddressMessage();
 			}
@@ -208,7 +210,7 @@ else
 						worldJSON = server.ReadLine();
 
 						lock (world) // make a copy in the lock and then do the work on that copy
-						{ 
+						{
 							world.load(worldJSON);
 						}
 					}
@@ -249,6 +251,9 @@ else
 		try
 		{
 			// Group all the draw commands into one large single draw.
+			int headX = worldCopy.Snakes[snakeID].body[1].X;
+			int headY = worldCopy.Snakes[snakeID].body[1].Y;
+
 			await context.BeginBatchAsync();
 
 			//DRAW BG BEFORE APPARNTLY GOTTA CLEAR STUFF EVERY FRAME :-\
@@ -264,8 +269,7 @@ else
 			// Because we are modifying the transformation matrix, we need to save it so we can restore it at the end
 			await context.SaveAsync();
 
-			int headX = worldCopy.Snakes[snakeID].body[0].X;
-			int headY = worldCopy.Snakes[snakeID].body[0].Y;
+			
 			// Calculate offsets from worldCopy space
 			double offsetX = -(headX - (ViewWidth / 2));
 			double offsetY = -(headY - (ViewHeight / 2));
@@ -275,7 +279,6 @@ else
 			await context.TranslateAsync(-headX, -headY); //???
 
 			// Draw the background:
-			// await context.DrawImageAsync(backgroundImage,-ViewWidth/2, ViewHeight/2, ViewWidth, ViewHeight);
 			await context.DrawImageAsync(grassTerrain, -worldCopy.Width / 2, -worldCopy.Height / 2, worldCopy.Width, worldCopy.Height);
 			foreach (Wall wall in worldCopy.Walls.Values)
 			{
@@ -291,21 +294,22 @@ else
 				await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
 			}
 
-			//await context.RestoreAsync();
 
-
-			foreach(Snake snake in worldCopy.Snakes.Values)
+			foreach (Snake snake in worldCopy.Snakes.Values)
 			{
 				await context.SetFillStyleAsync("darkblue");
-				// This is only drawing one section of the snake if it had "L" shapes it just does the first section 
+				// This is only drawing one section of the snake if it had "L" shapes it just does the first section
 				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
-				await context.FillRectAsync(snake.body[0].X, snake.body[0].Y, snake.body[0].X - snake.body[1].X + 10, snake.body[0].Y - snake.body[1].Y + 10);
+				for (int i = 0; i < snake.body.Count / 2; i+=2)
+				{
+					await context.FillRectAsync(snake.body[i].X, snake.body[i].Y, snake.body[i+1].X - snake.body[i].X + 10, snake.body[i+1].Y - snake.body[i].Y);
+				}
 			}
-			foreach(Powerup powerup in worldCopy.Powerups.Values)
+			foreach (Powerup powerup in worldCopy.Powerups.Values)
 			{
 				await context.BeginPathAsync();
 				await context.SetFillStyleAsync("darkblue");
-				await context.ArcAsync(powerup.loc.X, powerup.loc.Y,8, 0, 2 * Math.PI);
+				await context.ArcAsync(powerup.loc.X, powerup.loc.Y, 8, 0, 2 * Math.PI);
 				await context.FillAsync();
 			}
 
@@ -370,7 +374,7 @@ else
 	[JSInvokable]
 	public void HandleKeyPress(String keyEvent)
 	{
-		//Code for handing 
+		//Code for handing
 		//Send the key that was pressed to the server (says in assignment maybe?)
 		if (keyEvent == "ArrowUp" || keyEvent == "w" && snakeDirection != "DOWN")
 		{

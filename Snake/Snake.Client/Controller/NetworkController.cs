@@ -46,11 +46,6 @@ public class NetworkController
 	public string networkStatus = "Waiting For You to Connect";
 
 	/// <summary>
-	/// Keeps track of the frame number for network updates.
-	/// </summary>
-	private int frameNumberNetwork = 0;
-
-	/// <summary>
 	/// Stores the time when the connection was established.
 	/// </summary>
 	private DateTime ConnectTime = DateTime.Now;

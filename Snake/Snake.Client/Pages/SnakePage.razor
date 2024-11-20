@@ -135,6 +135,7 @@ else
 	/// Represents the reference to the grass terrain image element.
 	/// </summary>
 	private ElementReference grassTerrain;
+	private bool isConnected = false;
 
 	/// <summary>
 	/// Represents the current state of the game world, including walls, snakes, and power-ups.
@@ -276,8 +277,14 @@ else
 	{
 		Logger.LogInformation("Connecting!");
 		StateHasChanged();
-		networkController.HandleNetwork(world, ServerAddress, Port, Name);
-		StateHasChanged();
+		if (!isConnected)
+		{
+			networkController.HandleNetwork(world, ServerAddress, Port, Name);
+		}
+		else
+		{
+			isConnected = true;
+		}
 
 	}
 
@@ -481,7 +488,6 @@ else
 		{
 
 		}
-		Debug.WriteLine("Hello");
 	}
 
 	/// <summary>

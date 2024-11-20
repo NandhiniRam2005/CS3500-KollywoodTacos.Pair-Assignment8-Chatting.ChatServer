@@ -95,11 +95,9 @@ else
 	// Network model
 	private NetworkController networkController = new NetworkController();
 	// private NetworkConnection server = new(NullLogger.Instance);
-	// private string networkStatus = "Waiting For You to Connect";
+	private string networkStatus = "Waiting For You to Connect";
 	private int frameNumberNetwork = 0;
 	private DateTime ConnectTime = DateTime.Now;
-	private bool networkConnected = false;
-	private string connectionStatus = "Not connected";
 
 	private String snakeDirection = "Up";
 
@@ -182,6 +180,7 @@ else
 	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
+		StateHasChanged();
 		networkController.HandleNetwork(world, ServerAddress, Port, Name);
 		StateHasChanged();
 
@@ -203,17 +202,17 @@ else
 		double nps = frameNumberNetwork / (double)(DateTime.Now - ConnectTime).TotalSeconds;
 		int timeInSeconds = (int)(timeStamp / 1000);
 		World worldCopy;
-
+		lock (world)
+		{
+			worldCopy = new World(world.Walls, world.Snakes, world.Powerups, world.Width, world.Height, world.WorldID);
+		}
 		try
 		{
-			lock (world)
-			{
-				worldCopy = new World(world.Walls, world.Snakes, world.Powerups, world.Width, world.Height, world.WorldID);
-			}
+			
 
 			// Group all the draw commands into one large single draw.
-			int headX = worldCopy.Snakes[world.WorldID].body[^1].X;
-			int headY = worldCopy.Snakes[world.WorldID].body[^1].Y;
+			int headX = worldCopy.Snakes[worldCopy.WorldID].body[^1].X;
+			int headY = worldCopy.Snakes[worldCopy.WorldID].body[^1].Y;
 
 			await context.BeginBatchAsync();
 

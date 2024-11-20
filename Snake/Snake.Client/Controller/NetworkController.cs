@@ -92,9 +92,12 @@ public class NetworkController
 		if (server.IsConnected)
 		{
 			server.Send(name);
-			world.WorldID = int.Parse(server.ReadLine());
-			world.Height = int.Parse(server.ReadLine()); // Maybe switch tryParse???
-			world.Width = world.Height;
+			lock (world)
+			{
+				world.WorldID = int.Parse(server.ReadLine());
+				world.Height = int.Parse(server.ReadLine()); // Maybe switch tryParse???
+				world.Width = world.Height;
+			}
 
 			// Start a background task to continuously receive updates from the server
 			await Task.Run(() =>

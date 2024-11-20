@@ -11,32 +11,21 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 ```
 
 # Comments to Evaluators:
-A TA told us to only create two loggers for the entire solution, including both
-the ChatServer and NetworkConnection classes. So we created only two instances of
-ILoger for the server and one for the client, rather than multiple
-loggers across all our classes.
 
-- The ChatServer logger handles logging of server events such as client connections, message
-  broadcasting, and error warnings.
-
-In class Professor de St Germaine said to mainly use debug and information level debugging. (Slide 13 Lecture 21). So we went with those guidelines 
-
-Also in lecture he said we got to up to Minimum log level once we are done and ready to submit to the Information level (See lecture 21 around
-the 13 minute mark.) However we felt that, that did not make sense since it would make life for you (the TA's) harder as you wouldn't be
-able to see all of our logging messages easily. So we decided to keep the minimum level to trace.
 # Assignment Specific Topics
-1. Instrumenting your code to log the "right" message, to the "right" place, at the "right" time..
-2. Understand and describe how networking code works
-3. Understand how to protect critical regions from race conditions encountered in parallel programs. 
-We apply all these assignment specific topics by adding threading to handle multiple clients at the same time. We also do this by adding and
-implementing a Network Connection Class. We also implement Debugging in this ChatServer class.
-# Consulted Peers:
+Our assignment specific topics include creating a GUI that will connect to a networked Snake Server and display the status of the game.  
+We also send commands to the Snake Server representing the “moves” made by the player of the game. We also learned how to draw elements (in the draw method)
+using Canvas in Blazor. This client holds model classes for the elements in our snake game like the snake, wall, powerups, world, and Point@D (x and y coordinates/
+a point in our game world). We have a controller for the snake's movements and for holding the server's state (connected or disconnected). We have a "view" which is 
+the snake razor in pages which holds teh main drawing functionality; it uses the deserialized data to draw the elements. We also have a score board with all the players 
+connected.
 
+# Consulted Peers:
 List any peers (or other people) in the class (or outside for that matter) that you talked with about the project for more than one minute.
 
-1. Nandhini Ramanathan
+1. Adharsh
+2. Jacob
 
 # References:
     1. Debug Logging levels - https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel?view=net-8.0
-    2. Threads in C# - https://learn.microsoft.com/en-us/dotnet/api/system.threading.thread?view=net-8.0
-    3. The lock statement - https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/lock
+    2. The lock statement - https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/lock

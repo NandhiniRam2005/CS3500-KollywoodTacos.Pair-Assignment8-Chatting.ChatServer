@@ -115,10 +115,12 @@ else
 	private ElementReference backgroundImage;
 	private ElementReference wallImage;
 	private ElementReference grassTerrain;
+	private bool isConnected = false;
 
 	// WORLD Model here:
 	private World world = new World(new Dictionary<int, Wall>(), new Dictionary<int, Snake>(), new Dictionary<int, Powerup>(), 0,0,0);
-	private int snakeID;
+	// private int snakeID;
+	// private Snake ourSnake;
 
 	// Controller Model here:
 	private IJSObjectReference _jsModule = null!;
@@ -126,12 +128,9 @@ else
 	// Network model
 	private NetworkController networkController = new NetworkController();
 	// private NetworkConnection server = new(NullLogger.Instance);
-	private string networkStatus = "Waiting For You to Connect";
+	// private string networkStatus = "Waiting For You to Connect";
 	private int frameNumberNetwork = 0;
 	private DateTime ConnectTime = DateTime.Now;
-
-	private String snakeDirection = "Up";
-
 
 	private string nameBackingStore = "defaultPlayer";
 	private string Name
@@ -212,8 +211,14 @@ else
 	{
 		Logger.LogInformation("Connecting!");
 		StateHasChanged();
-		networkController.HandleNetwork(world, ServerAddress, Port, Name);
-		StateHasChanged();
+		if (!isConnected)
+		{
+			networkController.HandleNetwork(world, ServerAddress, Port, Name);
+		}
+		else
+		{
+			isConnected = true;
+		}
 
 	}
 
@@ -239,7 +244,7 @@ else
 		}
 		try
 		{
-			
+
 
 			// Group all the draw commands into one large single draw.
 			int headX = worldCopy.Snakes[worldCopy.WorldID].body[^1].X;
@@ -419,7 +424,6 @@ else
 		{
 
 		}
-		Debug.WriteLine("Hello");
 	}
 
 	/// <summary>

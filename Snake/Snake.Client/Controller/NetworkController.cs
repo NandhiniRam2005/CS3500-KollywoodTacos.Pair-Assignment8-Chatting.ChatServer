@@ -36,6 +36,27 @@ namespace Snake.Client.Controller;
 public class NetworkController
 {
 	/// <summary>
+	/// A logger for recording server events, warnings, and errors.
+	/// </summary>
+	private static readonly ILogger<NetworkController> _logger;
+
+	/// <summary>
+	/// Initializes static members of the <see cref="NetworkController"/> class.
+	/// A static constructor for NetworkController to initialize the logger.
+	/// </summary>
+	/// </summary>
+	static NetworkController()
+	{
+		using var loggerFactory = LoggerFactory.Create(builder =>
+		{
+			builder.AddConsole();
+			builder.AddDebug();
+			builder.SetMinimumLevel(LogLevel.Trace);
+		});
+		_logger = loggerFactory.CreateLogger<NetworkController>();
+	}
+
+	/// <summary>
 	/// The network connection to the game server, used to send and receive data.
 	/// </summary>
 	public NetworkConnection server = new(NullLogger.Instance);
@@ -65,7 +86,7 @@ public class NetworkController
 	/// <param name="name">The name of the snake (player).</param>
 	public async void HandleNetwork(World world, string serverUrl, int port, string name)
 	{
-
+		_logger.LogInformation("Successfully connected ");
 		await Task.Run(() =>
 		{
 

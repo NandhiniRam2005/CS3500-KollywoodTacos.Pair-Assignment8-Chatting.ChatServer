@@ -19,12 +19,16 @@ implementing a Network Connection Class. We also implement Debugging in all of o
 Also in lecture he said we got to up to Minimum log level once we are done and ready to submit to the Information level (See lecture 21 around
 the 13 minute mark.) However we felt that, that did not make sense since it would make life for you (the TA's) harder as you wouldn't be
 able to see all of our logging messages easily. So we decided to keep the minimum level to trace.
+1. 
 # Overview of the Chatting Client functionality
 Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The messages that are sent are accompanied
 by a name of the user and their message as well as a time stamp of when the user sent that message. There is also a feature where the server 
 announces when a person joins the server. The chat client provides helpful logging messages that help developers figure out where errors could have
 possibly happened without having to debug their code. 
 Future extensions of the chatting client is to apply it to our game project.
+
+# Overview of the Snake Client functionality
+
 
 
 # Examples of Good Software Practice (GSP).  
@@ -53,7 +57,19 @@ our next assignments.
 
 # Time Expenditures:
 
-    2. Assignment 8: Chatting Network/Logging                Predicted Hours:  12       Actual Hours:   9.5
+    1. Assignment 8: Chatting Network/Logging                Predicted Hours:  12       Actual Hours:   9.5
+                                                             Joel Rodriguez:                                                                             
+                                                                                Hours Spent - 
+                                                                                   Effectively:     3
+                                                                                   Debugging:       1
+                                                                                   Learning Tools:  5
+                                                             Nandhini Ramanathan:                                                                             
+                                                                                Hours Spent - 
+                                                                                   Effectively:     3
+                                                                                   Debugging:       1
+                                                                                   Learning Tools:  5
+
+    2. Assignment 9: Chatting Network/Logging                Predicted Hours:  12       Actual Hours:   9.5
                                                              Joel Rodriguez:                                                                             
                                                                                 Hours Spent - 
                                                                                    Effectively:     3

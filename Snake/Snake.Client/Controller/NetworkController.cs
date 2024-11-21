@@ -1,6 +1,8 @@
-﻿// <copyright file="NetworkConnection.cs" company="UofU-CS3500">
+﻿// <copyright file="NetworkController.cs" company="UofU-CS3500">
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
+
+namespace Snake.Client.Controller;
 
 using System.Numerics;
 using CS3500.Networking;
@@ -11,8 +13,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using Snake.Client.Pages;
 using System.Diagnostics;
-
-namespace Snake.Client.Controller;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -28,33 +28,37 @@ namespace Snake.Client.Controller;
 /// in my README file.
 ///
 /// File Contents
-///     This class manages a network connection for a Snake game, handling communication 
-///     with a game server. It includes methods to connect to the server, receive updates, and send user input 
-///     commands. This class uses the NetworkConnection class to manage the underlying TCP connection and includes 
+///     This class manages a network connection for a Snake game, handling communication
+///     with a game server. It includes methods to connect to the server, receive updates, and send user input
+///     commands. This class uses the NetworkConnection class to manage the underlying TCP connection and includes
 ///     methods to handle user input via key presses.
 /// </summary>
-
 public class NetworkController
 {
 	/// <summary>
 	/// The network connection to the game server, used to send and receive data.
 	/// </summary>
-	public NetworkConnection server = new(NullLogger.Instance);
+	public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
 
 	/// <summary>
 	/// A string indicating the current status of the network connection.
 	/// </summary>
-	public string networkStatus = "Waiting For You to Connect";
+	private string networkStatus = "Waiting For You to Connect";
 
 	/// <summary>
 	/// Stores the time when the connection was established.
 	/// </summary>
-	private DateTime ConnectTime = DateTime.Now;
+	private DateTime connectTime = DateTime.Now;
 
 	/// <summary>
 	/// Represents the current direction of the player's snake.
 	/// </summary>
-	private String snakeDirection = "Up";
+	private string snakeDirection = "Up";
+
+	/// <summary>
+	/// Gets or sets the particular error message if there is any.
+	/// </summary>
+	public string ErrorMessage { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Handles the network connection to the game server. Establishes a connection,
@@ -64,33 +68,33 @@ public class NetworkController
 	/// <param name="serverUrl">The URL of the server to connect to.</param>
 	/// <param name="port">The port number used for the connection.</param>
 	/// <param name="name">The name of the snake (player).</param>
-	public async void HandleNetwork(World world, string serverUrl, int port, string name, bool isConnected)
+	public async void HandleNetwork(World world, string serverUrl, int port, string name)
 	{
-		//await Task.Run(() =>
+		// await Task.Run(() =>
 		{
-
 			try
 			{
-				server.Connect(serverUrl, port);
+				ServerSnake.Connect(serverUrl, port);
 				networkStatus = "Connected";
-				ConnectTime = DateTime.Now;
+				connectTime = DateTime.Now;
 			}
 			catch (Exception e)
 			{
+				ErrorMessage = e.Message;
 				networkStatus = "Error";
 			}
-		} //);
+		} // );
 
-		var worldJSON = "";
+		var worldJSON = string.Empty;
 
 		// Once connected to the server, proceed with game initialization
-		if (server.IsConnected)
+		if (ServerSnake.IsConnected)
 		{
-			server.Send(name);
+			ServerSnake.Send(name);
 			lock (world)
 			{
-				world.WorldID = int.Parse(server.ReadLine());
-				world.Height = int.Parse(server.ReadLine()); // Maybe switch tryParse???
+				world.WorldID = int.Parse(ServerSnake.ReadLine());
+				world.Height = int.Parse(ServerSnake.ReadLine()); // Maybe switch tryParse???
 				world.Width = world.Height;
 			}
 
@@ -101,26 +105,23 @@ public class NetworkController
 				{
 					while (true)
 					{
-
-						worldJSON = server.ReadLine();
+						worldJSON = ServerSnake.ReadLine();
 
 						// Lock the `world` object to safely update its state with the new dat
 						lock (world)
 						{
 							world.load(worldJSON);
 						}
-					}
-				}
-				catch (Exception e)
-				{
+                    }
+                }
+                catch
+                {
+                }
 
-				}
-
-
-				server.Disconnect();
-			});
-		}
-	}
+				ServerSnake.Disconnect();
+            });
+        }
+    }
 
 	/// <summary>
 	/// Handles key press events from the user, interpreting them as movement commands for the snake.
@@ -128,28 +129,28 @@ public class NetworkController
 	/// </summary>
 	/// <param name="keyEvent">The key event string representing the user's key press.</param>
 	[JSInvokable]
-	public void HandleKeyPress(String keyEvent)
+	public void HandleKeyPress(string keyEvent)
 	{
-		if (!server.IsConnected)
+		if (!ServerSnake.IsConnected)
 		{
 			return;
 		}
 
-		if (keyEvent == "ArrowUp" || keyEvent == "w" && snakeDirection != "DOWN")
+		if (keyEvent == "ArrowUp" || (keyEvent == "w" && snakeDirection != "DOWN"))
 		{
-			server.Send(@"{""moving"":""up""}");
+			ServerSnake.Send(@"{""moving"":""up""}");
 		}
-		else if (keyEvent == "ArrowDown" || keyEvent == "s" && snakeDirection != "UP")
+		else if (keyEvent == "ArrowDown" || (keyEvent == "s" && snakeDirection != "UP"))
 		{
-			server.Send(@"{""moving"":""down""}");
+			ServerSnake.Send(@"{""moving"":""down""}");
 		}
-		else if (keyEvent == "ArrowLeft" || keyEvent == "a" && snakeDirection != "RIGHT")
+		else if (keyEvent == "ArrowLeft" || (keyEvent == "a" && snakeDirection != "RIGHT"))
 		{
-			server.Send(@"{""moving"": ""left""}");
-		}
-		else if (keyEvent == "ArrowRight" || keyEvent == "d" && snakeDirection != "LEFT")
-		{
-			server.Send(@"{""moving"":""right""}");
-		}
-	}
+			ServerSnake.Send(@"{""moving"": ""left""}");
+        }
+        else if (keyEvent == "ArrowRight" || (keyEvent == "d" && snakeDirection != "LEFT"))
+        {
+            ServerSnake.Send(@"{""moving"":""right""}");
+        }
+    }
 }

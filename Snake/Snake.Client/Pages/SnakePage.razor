@@ -125,11 +125,6 @@
 	/// </summary>
 	private World world = new World(new Dictionary<int, Wall>(), new Dictionary<int, Snake>(), new Dictionary<int, Powerup>(), 0, 0, 0);
 
-	/// <summary>
-	/// The unique Snake ID of the current snake.
-	/// </summary>
-	private int snakeID;
-
 	// Controller Model here:
 
 	/// <summary>
@@ -158,11 +153,6 @@
 	/// Tracks the time when the connection was established.
 	/// </summary>
 	private DateTime ConnectTime = DateTime.Now;
-
-	/// <summary>
-	/// The current direction of the snake.
-	/// </summary>
-	private String snakeDirection = "Up";
 
 	/// <summary>
 	/// Backing store for the player's name.
@@ -259,12 +249,12 @@
 	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
-		if (!networkController.server.IsConnected)
+		if (!networkController.ServerSnake.IsConnected)
 		{
 
 
-			networkController.HandleNetwork(world, ServerAddress, Port, Name, isConnected);
-			if (networkController.server.IsConnected)
+			networkController.HandleNetwork(world, ServerAddress, Port, Name);
+			if (networkController.ServerSnake.IsConnected)
 			{
 				isConnected = true;
 				networkStatus = "Connected!";
@@ -272,17 +262,14 @@
 			else
 			{
 				ShowServerConnectionFailedMessage();
-				networkStatus = "Failed to connect to server.";
+				networkStatus = "Failed to connect to server. " + networkController.ErrorMessage;
 			}
 
 		}
-		if (networkController.server.IsConnected)
+		if (networkController.ServerSnake.IsConnected)
 		{
 			isConnected = true;
 		}
-
-
-
 
 	}
 
@@ -357,7 +344,7 @@
 			{
 				if (snake.died || !snake.alive)
 				{
-					await context.SetFillStyleAsync("darkred");
+					await context.SetFillStyleAsync("red");
 				}
 				else
 				{
@@ -380,7 +367,7 @@
 							await context.SetStrokeStyleAsync("cyan");
 							break;
 						case 4:
-							await context.SetFillStyleAsync("red");
+							await context.SetFillStyleAsync("darkred");
 							await context.SetStrokeStyleAsync("blue");
 							break;
 						case 5:
@@ -466,8 +453,6 @@
 			// Draw Heads Up Display - done last so it is on top
 			await context.SetFontAsync("30px Arial");
 			await context.SetFillStyleAsync("white");
-			await context.FillTextAsync($"G-Frame: {frameNumberGUI}", 10, 30);
-			await context.FillTextAsync($"N-Frame: {frameNumberNetwork}", 10, 60);
 			await context.FillTextAsync($"FPS: {fps:F1}", 400, 30);
 			string playerNamesAndScores = string.Empty;
 			foreach (Snake snakePlayer in worldCopy.Snakes.Values)
@@ -475,8 +460,8 @@
 				playerNamesAndScores = playerNamesAndScores + snakePlayer.name + " Score: " + snakePlayer.score + "\n";
 			}
 
-			float x = 400;
-			float y = 60;
+			float x = 10;
+			float y = 30;
 			float lineHeight = 30;
 
 			foreach (string line in playerNamesAndScores.Split('\n'))
@@ -489,9 +474,8 @@
 
 			await context.EndBatchAsync();
 		}
-		catch (Exception e)
+		catch
 		{
-
 		}
 	}
 
@@ -538,12 +522,12 @@
 
 	}
 	/// <summary>
-	///  Shows invalid message when Server Address change is invalid.
+	///  Shows invalid message when ServerSnake Address change is invalid.
 	/// </summary>
 	private async void ShowInvalidServerAddressMessage()
 	{
 		// We need this helper method to be async which is why we can't directly have this line of code in the ServerAddressWidget setter.
-		await JS.InvokeVoidAsync("alert", "Server address must be of at least length one.");
+		await JS.InvokeVoidAsync("alert", "ServerSnake address must be of at least length one.");
 
 	}
 	/// <summary>
@@ -552,7 +536,7 @@
 	private async void ShowServerConnectionFailedMessage()
 	{
 		// We need this helper method to be async which is why we can't directly have this line of code in the Connect. We were advised not to make a method async for one line of code.
-		await JS.InvokeVoidAsync("alert", "Server connection failed please try again, please make sure your port and server address are correct.");
+		await JS.InvokeVoidAsync("alert", "ServerSnake connection failed please try again, please make sure your port and server address are correct.");
 	}
 
 	/// <summary>
@@ -561,8 +545,8 @@
 	[JSInvokable]
 	public void HandleUserLeaving()
 	{
-		networkController.server.Disconnect();
-		networkController.server = new(NullLogger.Instance);
+		networkController.ServerSnake.Disconnect();
+		networkController.ServerSnake = new(NullLogger.Instance);
 		lock (world)
 		{
 			world.Snakes.Remove(world.WorldID);

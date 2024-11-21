@@ -40,6 +40,8 @@ public class NetworkController
 	/// </summary>
 	public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
 
+	public bool IsServerConnected { get; set; } = false;
+
 	/// <summary>
 	/// A string indicating the current status of the network connection.
 	/// </summary>
@@ -76,12 +78,14 @@ public class NetworkController
 			{
 				ServerSnake.Connect(serverUrl, port);
 				networkStatus = "Connected";
+				IsServerConnected = true;
 				connectTime = DateTime.Now;
 			}
 			catch (Exception e)
 			{
 				ErrorMessage = e.Message;
-				networkStatus = "Error";
+				IsServerConnected = false;
+                networkStatus = "Error";
 			}
 		} // );
 
@@ -109,16 +113,26 @@ public class NetworkController
 
 						// Lock the `world` object to safely update its state with the new dat
 						lock (world)
-						{
-							world.load(worldJSON);
-						}
+                        {
+                            world.load(worldJSON);
+                        }
+
+						//if (worldJSON.Contains(@"""dc"":true,"))
+						//{
+						//	ServerSnake.Disconnect();
+						//	ServerSnake = new(NullLogger.Instance);
+						//	lock (world)
+						//	{
+						//		world.Snakes.Remove(world.WorldID);
+						//	}
+						//}
                     }
                 }
                 catch
                 {
                 }
 
-				ServerSnake.Disconnect();
+                ServerSnake.Disconnect();
             });
         }
     }

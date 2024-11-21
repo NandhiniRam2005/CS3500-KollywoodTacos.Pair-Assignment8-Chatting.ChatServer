@@ -249,12 +249,12 @@
 	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
-		if (!networkController.ServerSnake.IsConnected)
+		if (!networkController.IsServerConnected)
 		{
 
 
 			networkController.HandleNetwork(world, ServerAddress, Port, Name);
-			if (networkController.ServerSnake.IsConnected)
+			if (networkController.IsServerConnected)
 			{
 				isConnected = true;
 				networkStatus = "Connected!";
@@ -266,7 +266,7 @@
 			}
 
 		}
-		if (networkController.ServerSnake.IsConnected)
+		if (networkController.IsServerConnected)
 		{
 			isConnected = true;
 		}
@@ -336,7 +336,14 @@
 				int wallWidth = Math.Abs(wall.p1.X - wall.p2.X) + 50;
 				int wallHeight = Math.Abs(wall.p1.Y - wall.p2.Y) + 50;
 
-				await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
+				for (int xChange = bottomLeftCornerX - 25; xChange < bottomLeftCornerX - 25  + wallWidth; xChange += 50)
+				{
+					for (int yChange = bottomLeftCornerY -25; yChange < bottomLeftCornerY  - 25 + wallHeight; yChange += 50)
+					{
+						await context.DrawImageAsync(wallImage, xChange, yChange, 50, 50);
+					}
+				}
+				// await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
 			}
 
 			// Draw all the snakes in a loop with different colors for different clients:
@@ -441,7 +448,8 @@
 			{
 				await context.BeginPathAsync();
 				await context.SetFillStyleAsync("red");
-				await context.SetStrokeStyleAsync("black");
+				await context.SetStrokeStyleAsync("brown");
+				await context.SetLineWidthAsync(6);
 				await context.ArcAsync(powerup.loc.X, powerup.loc.Y, 8, 0, 2 * Math.PI);
 				await context.FillAsync();
 				await context.StrokeAsync();

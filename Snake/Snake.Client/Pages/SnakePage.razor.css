@@ -22,6 +22,10 @@
 {
     background-color: lightgray;
 }
+#status
+{
+    font-size: 30px;
+}
 
 .form-check-input
 {

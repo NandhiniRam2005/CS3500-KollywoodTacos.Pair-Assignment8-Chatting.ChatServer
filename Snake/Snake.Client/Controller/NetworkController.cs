@@ -9,6 +9,8 @@ using System.Xml.Linq;
 using Snake.Client.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
+using Snake.Client.Pages;
+using System.Diagnostics;
 
 namespace Snake.Client.Controller;
 
@@ -32,30 +34,8 @@ namespace Snake.Client.Controller;
 ///     methods to handle user input via key presses.
 /// </summary>
 
-///BLABLA
 public class NetworkController
 {
-	/// <summary>
-	/// A logger for recording server events, warnings, and errors.
-	/// </summary>
-	private static readonly ILogger<NetworkController> _logger;
-
-	/// <summary>
-	/// Initializes static members of the <see cref="NetworkController"/> class.
-	/// A static constructor for NetworkController to initialize the logger.
-	/// </summary>
-	/// </summary>
-	static NetworkController()
-	{
-		using var loggerFactory = LoggerFactory.Create(builder =>
-		{
-			builder.AddConsole();
-			builder.AddDebug();
-			builder.SetMinimumLevel(LogLevel.Trace);
-		});
-		_logger = loggerFactory.CreateLogger<NetworkController>();
-	}
-
 	/// <summary>
 	/// The network connection to the game server, used to send and receive data.
 	/// </summary>
@@ -84,10 +64,9 @@ public class NetworkController
 	/// <param name="serverUrl">The URL of the server to connect to.</param>
 	/// <param name="port">The port number used for the connection.</param>
 	/// <param name="name">The name of the snake (player).</param>
-	public async void HandleNetwork(World world, string serverUrl, int port, string name)
+	public async void HandleNetwork(World world, string serverUrl, int port, string name, bool isConnected)
 	{
-		_logger.LogInformation("Successfully connected ");
-		await Task.Run(() =>
+		//await Task.Run(() =>
 		{
 
 			try
@@ -100,7 +79,7 @@ public class NetworkController
 			{
 				networkStatus = "Error";
 			}
-		});
+		} //);
 
 		var worldJSON = "";
 

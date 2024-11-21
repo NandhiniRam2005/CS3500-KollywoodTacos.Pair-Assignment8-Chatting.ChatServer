@@ -11,7 +11,15 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 ```
 
 # Comments to Evaluators:
-
+1. We spoke with TA Parker who told us that since logging was not asked for in the assignment instructions, we would not need to add logging to our solution.  
+2. We were also told that the baseline for program prettiness was using images and colorful snakes. We were not required to make a 1-to-1 replication of Professor de St Germaines' solution. For example, we are not required to add powerups that explode upon eating them.  
+3. We were also told by a TA that we needed to ensure that when put into release mode the output window would NOT show any extraneous messages. So we made sure of that.  
+4. We were also told by a TA that disabling the connect button after it being clicked once was a totally valid solution, and we did not need to worry about any other edge cases. However, the assignment says we MUST find a way to get it working. The only solution we found was in our connect method telling our code to wait until the server has finished attempting to connect before executing other code. This is because without that little waiting period, Blazor does not realize that it is supposed to be updating its page and therefore will mistakenly either disable the connect button or mistakenly display that the connection was successful when it was not. The reason why in our lab code we did not need to add this code was because the variable which we were using to decide whether or not to display the connect button lived inside the Razor class (the server). But in our solution, since the server lives in a different class, Blazor has a hard time noticing when it does change. Which is why we MUST implement this solution.  
+5. We were also told to abstract our work and create a network controller class. So we did.  
+6. We were asked to "Set the Tone" on our Home page, which is why we added jokes here and there to make you, the TA, feel better. We understand how draining grading so many assignments can be and playing snake over and over again.  
+7. On random occasions, probably like one out of 30-40ish playthroughs, we found that Blazor will randomly give up and stop drawing. We found it with a TA that this is a Blazor problem, not anything with our code.  
+8. Our program freezes on our computer when there are about 30 snakes in the game concurrently. Once again, with the help of a TA, we found out that this is because of my computer not being fast enough (My CPU and Memory would get to 100%). The limit may be higher or lower with your computer. The client never crashes with fewer than 15 snakes unless you run it on a very very very old PC.  
+9. We were asked to discuss what works and what does not work, so we made that its own section on the Home page.  
 # Assignment Specific Topics
 Our assignment specific topics include creating a GUI that will connect to a networked Snake Server and display the status of the game.  
 We also send commands to the Snake Server representing the “moves” made by the player of the game. We also learned how to draw elements (in the draw method)

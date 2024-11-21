@@ -58,8 +58,10 @@
 	<input id="connectedInput" type="number" @bind="Port" readonly="@isConnected" />
 
 	<button disabled="@isConnected" class="btn btn-primary" @onclick="Connect">Connect</button>
-</div>
 
+</div>
+<label for="Network Status" id="status">Connection Status: </label>
+<label for="Network Status" id="status">@networkStatus</label>
 <div id="myCanvas">
 	<BECanvas Width="1000" Height="1000" @ref="canvasReference" />
 </div>
@@ -116,7 +118,7 @@
 	/// Represents the reference to the grass terrain image element.
 	/// </summary>
 	private ElementReference grassTerrain;
-	private bool isConnected = false;
+	public bool isConnected { get; set; } = false;
 
 	/// <summary>
 	/// Represents the current state of the game world, including walls, snakes, and power-ups.
@@ -145,7 +147,7 @@
 	/// <summary>
 	/// Indicates the current network status.
 	/// </summary>
-	private string networkStatus = "Waiting For You to Connect";
+	private string networkStatus  { get; set; } = "Waiting For You to Connect";
 
 	/// <summary>
 	/// Tracks the number of frames processed in the network.
@@ -165,7 +167,7 @@
 	/// <summary>
 	/// Backing store for the player's name.
 	/// </summary>
-	private string nameBackingStore = "defaultPlayer";
+	private string nameBackingStore = "ImASnek";
 
 	/// <summary>
 	/// Represents the player's name which is checked for validity.
@@ -257,12 +259,21 @@
 	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
-		StateHasChanged();
 		if (!networkController.server.IsConnected)
 		{
-			networkController.HandleNetwork(world, ServerAddress, Port, Name);
 
-			isConnected = true;
+
+			networkController.HandleNetwork(world, ServerAddress, Port, Name, isConnected);
+			if (networkController.server.IsConnected)
+			{
+				isConnected = true;
+				networkStatus = "Connected!";
+			}
+			else
+			{
+				ShowServerConnectionFailedMessage();
+				networkStatus = "Failed to connect to server.";
+			}
 
 		}
 		if (networkController.server.IsConnected)
@@ -390,9 +401,9 @@
 				}
 
 				// Draw each part/segment of the snake's body.
-				for (int i = 0; i < snake.body.Count - 1; i ++)
+				for (int i = 0; i < snake.body.Count - 1; i++)
 				{
-					
+
 					int bottomLeftCornerX = Math.Min(snake.body[i].X, snake.body[i + 1].X);
 					int bottomLeftCornerY = Math.Min(snake.body[i].Y, snake.body[i + 1].Y);
 
@@ -531,9 +542,17 @@
 	/// </summary>
 	private async void ShowInvalidServerAddressMessage()
 	{
-		// We need this helper method to be async which is why we can't directly have this line of code in the NameWidget setter.
+		// We need this helper method to be async which is why we can't directly have this line of code in the ServerAddressWidget setter.
 		await JS.InvokeVoidAsync("alert", "Server address must be of at least length one.");
 
+	}
+	/// <summary>
+	///  Shows invalid message when server connection fails.
+	/// </summary>
+	private async void ShowServerConnectionFailedMessage()
+	{
+		// We need this helper method to be async which is why we can't directly have this line of code in the Connect. We were advised not to make a method async for one line of code.
+		await JS.InvokeVoidAsync("alert", "Server connection failed please try again, please make sure your port and server address are correct.");
 	}
 
 	/// <summary>

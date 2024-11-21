@@ -1,7 +1,263 @@
-﻿@page "/"
+﻿@* // <copyright file="Home.razor" company="UofU-CS3500">
+    // Copyright (c) 2024 UofU-CS3500. All rights reserved.
+    //
+</copyright>
 
-<PageTitle>Home</PageTitle>
+// <summary>
+    // Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
+    // Partner:   None
+    // Date:      Novemeber 20, 2024
+    // Course:    CS 3500, University of Utah, School of Computing
+    // Copyright: CS 3500 and [Joel Rodriguez and Nandhini Ramanathan] - This work may not
+    //            be copied for use in Academic Coursework.
+    //
+    // I, Joel Rodriguez and Nandhini Ramanathan, certify that we wrote this code from scratch and
+    // did not copy it in part or whole from another source.  All
+    // references used in the completion of the assignments are cited
+    // in my README file.
+    //
+    // File Contents
+    //
+    //    This file contains our GUI elements for the Home page that consists of an About page, explains teh extra featured added to our Snake Game, and
+    //    information on how to use our Snake client.
+// </summary> *@
 
-<h1>Hello, world!</h1>
+@page "/"
 
-Welcome to your new app.
+<PageTitle>CS 3500</PageTitle>
+
+<div class="top-container">
+	<h1>CS 3500 - Snake Game</h1>
+
+	<p class="intro-text">
+		OHAYO GOAZAIMASU KONICHIWA SENPAI CHAN. This is our snake game. Please treat us kindly OwO. DATTEBAYO
+		(This is our snake game you can find notes on its functionality in the following tabs.) <br/>
+		If you want to save time and don't want to read any menial stuff such as what this project is and how to play it. Only read
+		the notes to instructors, extra features, and What Works/Doesn't work tabs.
+	</p>
+
+	<div class="button-container">
+		<div class="dropdown">
+			<input type="checkbox" id="about-toggle" class="toggle">
+			<label for="about-toggle" class="btn btn-info">About</label>
+			<div class="dropdown-content">
+				<p style="color: black;">
+					To begin we'd like to say this page is basically our readme. I figured this would make your guys' life easier. <br />
+					This is a snake game that utilizes an outside server, network connections (that use TCPClient protocol), and user controls <br />
+					to control a multi-player snake game.  If you have any other questions, stop.
+
+				</p>
+			</div>
+		</div>
+
+		<div class="button-container">
+			<div class="dropdown">
+				<input type="checkbox" id="HowTo-toggle" class="toggle">
+				<label for="HowTo-toggle" class="btn btn-info">How To Use</label>
+				<div class="dropdown-content">
+					<p style="color: black;">
+						Our client is pretty self explanatory and easy to use. You must input a name that is at least one character long and less than 
+						16 characters long. You must provide a server address (localhost) and a port (11000). Press connect to connect to the server.
+						Some of the rules in our snake game include using the arrow and w,a,s,d keys to move the snake around. The snake dies when you 
+						run into walls, other snakes, or your own snake body. Eating powerups increases your body length and score. The goal of the game 
+						is to be the LONGEST snake than the others and DONT DIE. 
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="dropdown">
+			<input type="checkbox" id="feature-toggle" class="toggle">
+			<label for="feature-toggle" class="btn btn-secondary">Extra Features</label>
+			<div class="dropdown-content">
+				<p style="color: black;">
+					We decided to add some extra features too our assignment that were not explicitly asked for in the assignment instructions.<br/>
+					These features were
+					<ol>
+						<li>We added images to be used for the walls, and background (player arena) the assignment only asked for these things to be somehow drawn.</li>
+						<li>We added a current score board to our game. According to a TA we were only required to display the current player's name and score but we are keeping track of all current players' names and scores and displaying them.</li>
+						<li>Instead of simply attaching the name and score of a player to their head we have it move it with them and position it in a way that is easy to read depending on the snake's direction.</li>
+						<li>When a snake dies it turns to a red color letting the user know the snake has tragically died.</li>
+						<li>Added messages to be displayed if the user does not enter a valid name or server address (the client will not allow invalid addresses or names). You can test this by completely deleting the name, server address, and port.</li>
+						<li>Upon clicking the connect button the three inputs and connect button become disabled/readonly. TA Parker told us that it is okay to simply make it disabled after the connect button has been clicked and we do not need to worry about the user failing to connect.</li>
+						<li>Added the implementation where if a client (Snake) is to leave the page either by refreshing or exiting the page, our game will handle that and remove the snake from the model and game.</li>
+						<li>Made the snakes prettier by adding strokes which gives the illusion of "creases" when a snake turns.</li>
+						<li>In addition to all this, we also added the necessary requirements.</li>
+					</ol>
+				</p>
+			</div>
+		</div>
+		<div class="dropdown">
+			<input type="checkbox" id="works-toggle" class="toggle">
+			<label for="works-toggle" class="btn btn-dark">What works/Doesn't work'</label>
+			<div class="dropdown-content">
+				<p style="color: black;">
+					Heres a list of all of the things that work in our assignment.
+				</p>
+				<ol>
+					<ol>
+						<li>The snake can move using the WASD keys and arrow keys.</li>
+						<li>The snake dies upon collisions with anything.</li>
+						<li>The game can handle as many players as your computer can handle. On my little guy computer, that is about 25 snakes.</li>
+						<li>The snake correctly de-serializes all information.</li>
+						<li>Upon connecting, a user is not allowed to connect again as they are already connected.</li>
+						<li>Players are able to connect to the server with a name that adheres to the rules described in the assignment and enter a server address and port.</li>
+						<li>The GUI provides animations, control commands, and error displays.</li>
+						<li>The client does everything that the client should do and then some.</li>
+					</ol>
+				</ol>
+				<p style="color: black;">
+					There is no basic functionality/minimum requirements that do not work.
+				</p>
+
+			</div>
+		</div>
+
+		<div class="dropdown">
+			<input type="checkbox" id="notes-toggle" class="toggle">
+			<label for="notes-toggle" class="btn btn-dark">Notes To Instructors</label>
+			<div class="dropdown-content">
+				<p style="color: black;">
+					Heres a list of all of our notes for you to consider while grading our assignment:
+				</p>
+				<ol>
+					<li>We spoke with TA Parker who told us that since logging was not asked for in the assignment instructions, we would not need to add logging to our solution.</li>
+					<li>We were also told that the baseline for program prettiness was using images and colorful snakes. We were not required to make a 1-to-1 replication of Professor de St Germaines' solution. For example, we are not required to add powerups that explode upon eating them.</li>
+					<li>We were also told by a TA that we needed to ensure that when put into release mode the output window would NOT show any extraneous messages. So we made sure of that.</li>
+					<li>We were also told by a TA that disabling the connect button after it being clicked once was a totally valid solution, and we did not need to worry about any other edge cases.</li>
+					<li>We were also told to abstract our work and create a network controller class. So we did.</li>
+					<li>We were asked to "Set the Tone" on our Home page, which is why we added jokes here and there to make you, the TA, feel better. We understand how draining grading so many assignments can be and playing snake over and over again.</li>
+					<li>We were asked to discuss what works and what does not work, so we made that its own section on the Home page.</li>
+				</ol>
+
+			</div>
+		</div>
+
+		<div class="dropdown">
+			<input type="checkbox" id="lore-toggle" class="toggle">
+			<label for="lore-toggle" class="btn btn-dark">Creators' Lore</label>
+			<div class="dropdown-content">
+				<p style="color: black;">This project was put together by:</p>
+				<ul class="indented-list">
+					<li style="color: black;">Joel Rodriguez: Brown</li>
+					<li style="color: black;">Nandhini Ramanathan: Brown</li>
+				</ul>
+			</div>
+		</div>
+		<div class="dropdown">
+			<input type="checkbox" id="donotopen-toggle" class="toggle">
+			<label for="donotopen-toggle" class="btn btn-dark">DO NOT OPEN... jk</label>
+			<div class="dropdown-content">
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<img id="cat" src="cat.jpg" alt="image" style="display:inline-block;" />
+				<p style="color: black;">This is just a joke panel we added to make your day easier.</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<environment names="Development">
+	<script src="_framework/aspnetcore-browser-refresh.js"></script>
+</environment>
+
+<style>
+	.top-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+		height: 100vh;
+		padding-top: 50px;
+		gap: 40px;
+	}
+
+	.intro-text {
+		font-size: 22px;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.button-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 20px;
+		width: 100%;
+		max-width: 1500px;
+	}
+
+	.home-text {
+		color: black;
+	}
+
+	.dropdown {
+		position: relative;
+		width: 100%;
+	}
+
+	.toggle {
+		display: none;
+	}
+
+	.btn {
+		display: block;
+		width: 100%;
+		height: 60px;
+		font-size: 20px;
+		border-radius: 12px;
+		cursor: pointer;
+		text-align: center;
+		transition: background-color 0.3s ease;
+		line-height: 60px;
+		color: white;
+	}
+
+	.btn-info {
+		background-color: #f94449;
+		color: white;
+	}
+
+		.btn-info:hover {
+			background-color: gray;
+			color: white;
+		}
+
+	.btn-secondary {
+		background-color: #f01e2c;
+		color: white;
+	}
+
+		.btn-secondary:hover {
+			background-color: gray;
+			color: white;
+		}
+
+	.btn-dark {
+		background-color: #c30010;
+		color: white;
+	}
+
+		.btn-dark:hover {
+			background-color: gray;
+			color: white;
+		}
+
+	.dropdown-content {
+		display: none;
+		margin-top: 15px;
+		padding: 14px;
+		background-color: white;
+		border: 1px solid red;
+		border-radius: 8px;
+		font-size: 19px;
+		line-height: 1.6;
+	}
+
+	.toggle:checked + label + .dropdown-content {
+		display: block;
+	}
+</style>

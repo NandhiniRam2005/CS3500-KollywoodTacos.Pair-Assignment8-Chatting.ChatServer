@@ -48,36 +48,17 @@
 <h1>Snake Game</h1>
 <p> Play Snake! </p>
 
-@if (!networkController.server.IsConnected)
-{
-	<div>
-	<label for="nameInput">Player Name:</label>
-	<input id="nameInput" @bind="Name" />
-	<label for="ServerAddress">Server Address:</label>
-	<input id="ServerAddress" @bind="ServerAddress" />
-	<label for="Port">Port:</label>
-	<input id="Port" type="number" @bind="Port" />
 
-	<button class="btn btn-primary" @onclick="Connect">Connect</button>
-	</div>
-	<label for="ConnectionStatus">ConnectionStatus: </label>
-	<input id="connectionStatus" @bind="networkController.networkStatus" readonly />
-}
-else
-{
-	<div>
+<div>
 	<label for="nameInput">Name: </label>
-	<input id="connectedInput" @bind="Name" readonly />
+	<input id="connectedInput" @bind="Name" readonly="@isConnected" />
 	<label for="ServerAddress">Server Address:</label>
-	<input id="connectedInput" @bind="ServerAddress" readonly />
+	<input id="connectedInput" @bind="ServerAddress" readonly="@isConnected" />
 	<label for="Port">Port:</label>
-	<input id="connectedInput" type="number" @bind="Port" readonly />
+	<input id="connectedInput" type="number" @bind="Port" readonly="@isConnected" />
 
-	<button disabled class="btn btn-primary" @onclick="Connect">Connect</button>
-	</div>
-	<label for="ConnectionStatus">ConnectionStatus: </label>
-	<input id="connectionStatus" @bind="networkController.networkStatus" readonly />
-}
+	<button disabled="@isConnected" class="btn btn-primary" @onclick="Connect">Connect</button>
+</div>
 
 <div id="myCanvas">
 	<BECanvas Width="1000" Height="1000" @ref="canvasReference" />
@@ -140,7 +121,7 @@ else
 	/// <summary>
 	/// Represents the current state of the game world, including walls, snakes, and power-ups.
 	/// </summary>
-	private World world = new World(new Dictionary<int, Wall>(), new Dictionary<int, Snake>(), new Dictionary<int, Powerup>(), 0,0,0);
+	private World world = new World(new Dictionary<int, Wall>(), new Dictionary<int, Snake>(), new Dictionary<int, Powerup>(), 0, 0, 0);
 
 	/// <summary>
 	/// The unique Snake ID of the current snake.
@@ -277,14 +258,20 @@ else
 	{
 		Logger.LogInformation("Connecting!");
 		StateHasChanged();
-		if (!isConnected)
+		if (!networkController.server.IsConnected)
 		{
 			networkController.HandleNetwork(world, ServerAddress, Port, Name);
+
+			isConnected = true;
+
 		}
-		else
+		if (networkController.server.IsConnected)
 		{
 			isConnected = true;
 		}
+
+
+
 
 	}
 
@@ -356,50 +343,58 @@ else
 
 			foreach (Snake snake in worldCopy.Snakes.Values)
 			{
-				switch (snake.snake%8)
+				if (snake.died || !snake.alive)
 				{
-					case 0:
-						await context.SetFillStyleAsync("darkblue");
-						await context.SetStrokeStyleAsync("darkred");
-						break;
-					case 1:
-						await context.SetFillStyleAsync("orange");
-						await context.SetStrokeStyleAsync("lightgreen");
-						break;
-					case 2:
-						await context.SetFillStyleAsync("black");
-						await context.SetStrokeStyleAsync("darkgrey");
-						break; 
-					case 3:
-						await context.SetFillStyleAsync("magenta");
-						await context.SetStrokeStyleAsync("cyan");
-						break;
-					case 4:
-						await context.SetFillStyleAsync("red");
-						await context.SetStrokeStyleAsync("blue");
-						break;
-					case 5:
-						await context.SetFillStyleAsync("pink");
-						await context.SetStrokeStyleAsync("purple");
-						break;
-					case 6:
-						await context.SetFillStyleAsync("purple");
-						await context.SetStrokeStyleAsync("pink");
-						break;
-					case 7:
-						await context.SetFillStyleAsync("cyan");
-						await context.SetStrokeStyleAsync("magenta");
-						break;
-					default:
-						break;
+					await context.SetFillStyleAsync("darkred");
+				}
+				else
+				{
+					switch (snake.snake % 8)
+					{
+						case 0:
+							await context.SetFillStyleAsync("darkblue");
+							await context.SetStrokeStyleAsync("darkred");
+							break;
+						case 1:
+							await context.SetFillStyleAsync("orange");
+							await context.SetStrokeStyleAsync("lightgreen");
+							break;
+						case 2:
+							await context.SetFillStyleAsync("black");
+							await context.SetStrokeStyleAsync("darkgrey");
+							break;
+						case 3:
+							await context.SetFillStyleAsync("magenta");
+							await context.SetStrokeStyleAsync("cyan");
+							break;
+						case 4:
+							await context.SetFillStyleAsync("red");
+							await context.SetStrokeStyleAsync("blue");
+							break;
+						case 5:
+							await context.SetFillStyleAsync("pink");
+							await context.SetStrokeStyleAsync("purple");
+							break;
+						case 6:
+							await context.SetFillStyleAsync("purple");
+							await context.SetStrokeStyleAsync("pink");
+							break;
+						case 7:
+							await context.SetFillStyleAsync("cyan");
+							await context.SetStrokeStyleAsync("magenta");
+							break;
+						default:
+							break;
+					}
 				}
 
 				// This is only drawing one section of the snake if it had "L" shapes it just does the first section
 				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
 
 				// for (int i = 0; i < snake.body.Count / 2; i+=2)
-				for (int i = 0; i < snake.body.Count - 1; i ++)
+				for (int i = 0; i < snake.body.Count - 1; i++)
 				{
+					
 					int bottomLeftCornerX = Math.Min(snake.body[i].X, snake.body[i + 1].X);
 					int bottomLeftCornerY = Math.Min(snake.body[i].Y, snake.body[i + 1].Y);
 
@@ -413,7 +408,7 @@ else
 				}
 				int currentSnakeHeadX = 0;
 				int currentSnakeHeadY = 0;
-				foreach (Snake currentSnake in worldCopy.Snakes.Values) 
+				foreach (Snake currentSnake in worldCopy.Snakes.Values)
 				{
 					currentSnakeHeadX = worldCopy.Snakes[currentSnake.snake].body[^1].X;
 					currentSnakeHeadY = worldCopy.Snakes[currentSnake.snake].body[^1].Y;
@@ -471,13 +466,13 @@ else
 			}
 
 			float x = 400;
-			float y = 60; 
-			float lineHeight = 30; 
+			float y = 60;
+			float lineHeight = 30;
 
 			foreach (string line in playerNamesAndScores.Split('\n'))
 			{
 				await context.FillTextAsync(line, x, y);
-				y += lineHeight; 
+				y += lineHeight;
 			}
 
 			await context.FillTextAsync($"Elapsed: {timeInSeconds:F0} seconds", 550, 30);

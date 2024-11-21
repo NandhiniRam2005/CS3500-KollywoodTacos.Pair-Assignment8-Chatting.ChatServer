@@ -3,7 +3,6 @@
 // </copyright>
 
 using System.Text.Json.Serialization;
-
 namespace Snake.Client.Models;
 
 /// <summary>
@@ -30,7 +29,6 @@ namespace Snake.Client.Models;
 /// </summary>
 public class Wall
 {
-
 	/// <summary>
 	/// Gets or sets the unique wall ID for the wall.
 	/// </summary>

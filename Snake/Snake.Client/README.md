@@ -20,6 +20,8 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 7. On random occasions, probably like one out of 30-40ish playthroughs, we found that Blazor will randomly give up and stop drawing. We found it with a TA that this is a Blazor problem, not anything with our code.  
 8. Our program freezes on our computer when there are about 30 snakes in the game concurrently. Once again, with the help of a TA, we found out that this is because of my computer not being fast enough (My CPU and Memory would get to 100%). The limit may be higher or lower with your computer. The client never crashes with fewer than 15 snakes unless you run it on a very very very old PC.  
 9. We were asked to discuss what works and what does not work, so we made that its own section on the Home page.  
+10. An important note, if the GUI Snake seems to lag/overlap, please check your task manager since when the CPU and memory is very high it causes this because of the work the computer is doing and please trye running it again :)
+11. When we run our code (on one of our computers) the frame rate starts a bit slower and quickly picks up to about 60 just so you know.
 # Assignment Specific Topics
 Our assignment specific topics include creating a GUI that will connect to a networked Snake Server and display the status of the game.  
 We also send commands to the Snake Server representing the “moves” made by the player of the game. We also learned how to draw elements (in the draw method)

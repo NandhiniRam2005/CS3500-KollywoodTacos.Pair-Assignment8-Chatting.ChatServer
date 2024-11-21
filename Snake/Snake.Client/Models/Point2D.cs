@@ -33,8 +33,8 @@ namespace Snake.Client.Models;
 /// </summary>
 public class Point2D
 {
-	/// <summary>
-	/// Gets or sets the X-coordinate of the point.
+    /// <summary>
+    /// Gets or sets the X-coordinate of the point.
 	/// </summary>
 	[JsonInclude]
     public int X { get; set; }
@@ -56,4 +56,3 @@ public class Point2D
         this.Y = y;
     }
 }
-

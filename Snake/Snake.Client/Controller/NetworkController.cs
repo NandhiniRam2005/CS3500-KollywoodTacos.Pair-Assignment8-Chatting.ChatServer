@@ -35,97 +35,99 @@ using System.Diagnostics;
 /// </summary>
 public class NetworkController
 {
-	/// <summary>
-	/// The network connection to the game server, used to send and receive data.
-	/// </summary>
-	public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
+    /// <summary>
+    /// Gets or sets the network connection to the game server, used to send and receive data.
+    /// </summary>
+    public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
 
-	public bool IsServerConnected { get; set; } = false;
+    /// <summary>
+    /// Gets or sets a value indicating whether the server's connected.
+    /// </summary>
+    public bool IsServerConnected { get; set; } = false;
 
-	/// <summary>
-	/// A string indicating the current status of the network connection.
-	/// </summary>
-	private string networkStatus = "Waiting For You to Connect";
+    /// <summary>
+    /// A string indicating the current status of the network connection.
+    /// </summary>
+    private string networkStatus = "Waiting For You to Connect";
 
-	/// <summary>
-	/// Stores the time when the connection was established.
-	/// </summary>
-	private DateTime connectTime = DateTime.Now;
+    /// <summary>
+    /// Stores the time when the connection was established.
+    /// </summary>
+    private DateTime connectTime = DateTime.Now;
 
-	/// <summary>
-	/// Represents the current direction of the player's snake.
-	/// </summary>
-	private string snakeDirection = "Up";
+    /// <summary>
+    /// Represents the current direction of the player's snake.
+    /// </summary>
+    private string snakeDirection = "Up";
 
-	/// <summary>
-	/// Gets or sets the particular error message if there is any.
-	/// </summary>
-	public string ErrorMessage { get; set; } = string.Empty;
+    /// <summary>
+    /// Gets or sets the particular error message if there is any.
+    /// </summary>
+    public string ErrorMessage { get; set; } = string.Empty;
 
-	/// <summary>
-	/// Handles the network connection to the game server. Establishes a connection,
-	/// retrieves initial world information, and continuously receives updates from the server.
-	/// </summary>
-	/// <param name="world">The World object representing the game state.</param>
-	/// <param name="serverUrl">The URL of the server to connect to.</param>
-	/// <param name="port">The port number used for the connection.</param>
-	/// <param name="name">The name of the snake (player).</param>
-	public async void HandleNetwork(World world, string serverUrl, int port, string name)
-	{
-		// await Task.Run(() =>
-		{
-			try
-			{
-				ServerSnake.Connect(serverUrl, port);
-				networkStatus = "Connected";
-				IsServerConnected = true;
-				connectTime = DateTime.Now;
-			}
-			catch (Exception e)
-			{
-				ErrorMessage = e.Message;
-				IsServerConnected = false;
+    /// <summary>
+    /// Handles the network connection to the game server. Establishes a connection,
+    /// retrieves initial world information, and continuously receives updates from the server.
+    /// </summary>
+    /// <param name="world">The World object representing the game state.</param>
+    /// <param name="serverUrl">The URL of the server to connect to.</param>
+    /// <param name="port">The port number used for the connection.</param>
+    /// <param name="name">The name of the snake (player).</param>
+    public async void HandleNetwork(World world, string serverUrl, int port, string name)
+    {
+        {
+            try
+            {
+                ServerSnake.Connect(serverUrl, port);
+                networkStatus = "Connected";
+                IsServerConnected = true;
+                connectTime = DateTime.Now;
+            }
+            catch (Exception e)
+            {
+                ErrorMessage = e.Message;
+                IsServerConnected = false;
                 networkStatus = "Error";
-			}
-		} // );
+            }
+        }
 
-		var worldJSON = string.Empty;
+        var worldJSON = string.Empty;
 
-		// Once connected to the server, proceed with game initialization
-		if (ServerSnake.IsConnected)
-		{
-			ServerSnake.Send(name);
-			lock (world)
-			{
-				world.WorldID = int.Parse(ServerSnake.ReadLine());
-				world.Height = int.Parse(ServerSnake.ReadLine()); // Maybe switch tryParse???
-				world.Width = world.Height;
-			}
+        // Once connected to the server, proceed with game initialization
+        if (ServerSnake.IsConnected)
+        {
+            ServerSnake.Send(name);
+            lock (world)
+            {
+                world.WorldID = int.Parse(ServerSnake.ReadLine());
+                world.Height = int.Parse(ServerSnake.ReadLine());
+                world.Width = world.Height;
+            }
 
-			// Start a background task to continuously receive updates from the server
-			await Task.Run(() =>
-			{
-				try
-				{
-					while (true)
-					{
-						worldJSON = ServerSnake.ReadLine();
+            // Start a background task to continuously receive updates from the server
+            await Task.Run(() =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        worldJSON = ServerSnake.ReadLine();
 
-						// Lock the `world` object to safely update its state with the new dat
-						lock (world)
+                        // Lock the `world` object to safely update its state with the new dat
+                        lock (world)
                         {
                             world.load(worldJSON);
                         }
 
-						//if (worldJSON.Contains(@"""dc"":true,"))
-						//{
-						//	ServerSnake.Disconnect();
-						//	ServerSnake = new(NullLogger.Instance);
-						//	lock (world)
-						//	{
-						//		world.Snakes.Remove(world.WorldID);
-						//	}
-						//}
+                        // if (worldJSON.Contains(@"""dc"":true,"))
+                        // {
+                        //  ServerSnake.Disconnect();
+                        // ServerSnake = new(NullLogger.Instance);
+                        // lock (world)
+                        // {
+                        // world.Snakes.Remove(world.WorldID);
+                        // }
+                        // }
                     }
                 }
                 catch
@@ -137,30 +139,30 @@ public class NetworkController
         }
     }
 
-	/// <summary>
-	/// Handles key press events from the user, interpreting them as movement commands for the snake.
-	/// Sends the corresponding direction to the server if the snake is connected.
-	/// </summary>
-	/// <param name="keyEvent">The key event string representing the user's key press.</param>
-	[JSInvokable]
-	public void HandleKeyPress(string keyEvent)
-	{
-		if (!ServerSnake.IsConnected)
-		{
-			return;
-		}
+    /// <summary>
+    /// Handles key press events from the user, interpreting them as movement commands for the snake.
+    /// Sends the corresponding direction to the server if the snake is connected.
+    /// </summary>
+    /// <param name="keyEvent">The key event string representing the user's key press.</param>
+    [JSInvokable]
+    public void HandleKeyPress(string keyEvent)
+    {
+        if (!ServerSnake.IsConnected)
+        {
+            return;
+        }
 
-		if (keyEvent == "ArrowUp" || (keyEvent == "w" && snakeDirection != "DOWN"))
-		{
-			ServerSnake.Send(@"{""moving"":""up""}");
-		}
-		else if (keyEvent == "ArrowDown" || (keyEvent == "s" && snakeDirection != "UP"))
-		{
-			ServerSnake.Send(@"{""moving"":""down""}");
-		}
-		else if (keyEvent == "ArrowLeft" || (keyEvent == "a" && snakeDirection != "RIGHT"))
-		{
-			ServerSnake.Send(@"{""moving"": ""left""}");
+        if (keyEvent == "ArrowUp" || (keyEvent == "w" && snakeDirection != "DOWN"))
+        {
+            ServerSnake.Send(@"{""moving"":""up""}");
+        }
+        else if (keyEvent == "ArrowDown" || (keyEvent == "s" && snakeDirection != "UP"))
+        {
+            ServerSnake.Send(@"{""moving"":""down""}");
+        }
+        else if (keyEvent == "ArrowLeft" || (keyEvent == "a" && snakeDirection != "RIGHT"))
+        {
+            ServerSnake.Send(@"{""moving"": ""left""}");
         }
         else if (keyEvent == "ArrowRight" || (keyEvent == "d" && snakeDirection != "LEFT"))
         {

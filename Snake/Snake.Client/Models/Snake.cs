@@ -26,7 +26,6 @@ namespace Snake.Client.Models;
 ///     including movement direction, whether it has died, and if it has joined or left the game.
 /// </summary>
 
-
 /// <summary>
 ///   Represents a player-controlled snake in the Snake game, including its ID, name, position,
 ///   score, status, and connection information.

@@ -5,7 +5,7 @@ Start Date: 20-Aug-2024
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  joel-rodriguez and NandhiniRam2005
 Repo:      https://github.com/uofu-cs3500-20-fall2024/spreadsheetpair-bollywood-burritos
-Commit Date: 28-October-2024 10:20PM
+Commit Date: 22-November-2024 10:20PM
 Solution:   Assignment-8-chatting
 Copyright:  CS 3500 and [Joel Rodriguez and Nandhini Ramanathan] - This work may not be copied for use in Academic Coursework.
 ```
@@ -19,7 +19,7 @@ implementing a Network Connection Class. We also implement Debugging in all of o
 Also in lecture he said we got to up to Minimum log level once we are done and ready to submit to the Information level (See lecture 21 around
 the 13 minute mark.) However we felt that, that did not make sense since it would make life for you (the TA's) harder as you wouldn't be
 able to see all of our logging messages easily. So we decided to keep the minimum level to trace.
-1. 
+
 # Overview of the Chatting Client functionality
 Our chat client is able to handle multiple users at the same time and broadcast users' messages to each other. The messages that are sent are accompanied
 by a name of the user and their message as well as a time stamp of when the user sent that message. There is also a feature where the server 
@@ -28,7 +28,10 @@ possibly happened without having to debug their code.
 Future extensions of the chatting client is to apply it to our game project.
 
 # Overview of the Snake Client functionality
-
+Our snake client is able to handle multiple users at the same time and keep multiple snakes in play with a score board of all the clients in play. This game
+has various elements grouped in our model class that are used in our "View" part in the razor file to draw the model elements such as the snake, walls, powerups, 
+point2D (used as grid coordinates), and the world. We also have a Controller folder that handles the control keys for the snake (directions) and the network status.
+We also have logging messages throughout used for debugging.
 
 
 # Examples of Good Software Practice (GSP).  
@@ -69,14 +72,14 @@ our next assignments.
                                                                                    Debugging:       1
                                                                                    Learning Tools:  5
 
-    2. Assignment 9: Chatting Network/Logging                Predicted Hours:  12       Actual Hours:   9.5
+    2. Assignment 9: Snake Client - MVC                      Predicted Hours:  20       Actual Hours:   25
                                                              Joel Rodriguez:                                                                             
                                                                                 Hours Spent - 
-                                                                                   Effectively:     3
+                                                                                   Effectively:     18
                                                                                    Debugging:       1
-                                                                                   Learning Tools:  5
+                                                                                   Learning Tools:  6
                                                              Nandhini Ramanathan:                                                                             
                                                                                 Hours Spent - 
-                                                                                   Effectively:     3
+                                                                                   Effectively:     18
                                                                                    Debugging:       1
-                                                                                   Learning Tools:  5
+                                                                                   Learning Tools:  6

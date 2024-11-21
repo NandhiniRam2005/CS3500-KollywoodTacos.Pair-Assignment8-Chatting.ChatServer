@@ -285,6 +285,7 @@
 	[JSInvokable]
 	public async void Draw(double timeStamp = 0)
 	{
+		// Calculations made for the Heads Up display
 		frameNumberGUI++;
 
 		double fps = frameNumberGUI / (double)(DateTime.Now - StartTime).TotalSeconds;
@@ -323,15 +324,14 @@
 
 			// Center on origin, move to center of view port
 			await context.TranslateAsync(ViewWidth / 2, ViewHeight / 2);
-			await context.TranslateAsync(-headX, -headY); //???
+			await context.TranslateAsync(-headX, -headY);
 
 			// Draw the background:
 			await context.DrawImageAsync(grassTerrain, -worldCopy.Width / 2, -worldCopy.Height / 2, worldCopy.Width, worldCopy.Height);
+
+			// Draw all the walls in a loop:
 			foreach (Wall wall in worldCopy.Walls.Values)
 			{
-				// Our walls are not drwing in gui coords they are drawing in worldCopy coords. And then also our walls can be possibly very huge or not exisiting.
-				//await context.DrawImageAsync(wallImage, wall.p1.X, wall.p1.Y, wall.p1.X - wall.p2.X + 50, wall.p1.Y - wall.p2.Y + 50);
-
 				int bottomLeftCornerX = Math.Min(wall.p1.X, wall.p2.X);
 				int bottomLeftCornerY = Math.Min(wall.p1.Y, wall.p2.Y);
 
@@ -341,6 +341,7 @@
 				await context.DrawImageAsync(wallImage, bottomLeftCornerX - 25, bottomLeftCornerY - 25, wallWidth, wallHeight);
 			}
 
+			// Draw all the snakes in a loop with different colors for different clients:
 			foreach (Snake snake in worldCopy.Snakes.Values)
 			{
 				if (snake.died || !snake.alive)
@@ -388,11 +389,8 @@
 					}
 				}
 
-				// This is only drawing one section of the snake if it had "L" shapes it just does the first section
-				// Snake isnt drawing in worldCopy coords and snake could be non existent or huge.
-
-				// for (int i = 0; i < snake.body.Count / 2; i+=2)
-				for (int i = 0; i < snake.body.Count - 1; i++)
+				// Draw each part/segment of the snake's body.
+				for (int i = 0; i < snake.body.Count - 1; i ++)
 				{
 					
 					int bottomLeftCornerX = Math.Min(snake.body[i].X, snake.body[i + 1].X);
@@ -403,9 +401,9 @@
 
 					await context.FillRectAsync(bottomLeftCornerX - 5, bottomLeftCornerY - 5, snakePartWidth, snakePartHeight);
 					await context.StrokeRectAsync(bottomLeftCornerX - 5, bottomLeftCornerY - 5, snakePartWidth, snakePartHeight);
-					//await context.FillRectAsync(snake.body[i].X, snake.body[i].Y, snake.body[i+1].X - snake.body[i].X + 10, snake.body[i+1].Y - snake.body[i].Y);
-
 				}
+
+				// Display each snake's name and score, orientation is determined by which direction snake is going.
 				int currentSnakeHeadX = 0;
 				int currentSnakeHeadY = 0;
 				foreach (Snake currentSnake in worldCopy.Snakes.Values)
@@ -439,6 +437,8 @@
 					}
 				}
 			}
+
+			// Draw each power up in a loop:
 			foreach (Powerup powerup in worldCopy.Powerups.Values)
 			{
 				await context.BeginPathAsync();
@@ -452,8 +452,7 @@
 
 			await context.RestoreAsync();
 
-
-			// Draw Heads Up Display - do this last so it is on top
+			// Draw Heads Up Display - done last so it is on top
 			await context.SetFontAsync("30px Arial");
 			await context.SetFillStyleAsync("white");
 			await context.FillTextAsync($"G-Frame: {frameNumberGUI}", 10, 30);

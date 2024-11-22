@@ -119,15 +119,15 @@ public class NetworkController
                             world.load(worldJSON);
                         }
 
-                        // if (worldJSON.Contains(@"""dc"":true,"))
-                        // {
-                        //  ServerSnake.Disconnect();
-                        // ServerSnake = new(NullLogger.Instance);
-                        // lock (world)
-                        // {
-                        // world.Snakes.Remove(world.WorldID);
-                        // }
-                        // }
+                        if (worldJSON.Contains(@"""dc"":true,"))
+                        {
+                            ServerSnake.Disconnect();
+                            ServerSnake = new(NullLogger.Instance);
+                            lock (world)
+                            {
+                                world.Snakes.Remove(world.WorldID);
+                            }
+                        }
                     }
                 }
                 catch
@@ -176,12 +176,12 @@ public class NetworkController
     /// </summary>
     public void HandleDisconnectingClient(World world)
     {
-        ServerSnake.Disconnect();
-        ServerSnake = new(NullLogger.Instance);
+        //    ServerSnake.Disconnect();
+        //    ServerSnake = new(NullLogger.Instance);
 
-        lock (world)
-        {
-            world.Snakes.Remove(world.WorldID);
-        }
+        //    lock (world)
+        //    {
+        //        world.Snakes.Remove(world.WorldID);
+        //    }
     }
 }

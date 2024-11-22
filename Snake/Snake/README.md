@@ -6,11 +6,10 @@ Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  joel-rodriguez
 Repo:     https://github.com/uofu-cs3500-20-fall2024/assignment-eight-chatting-kollywoodtacos
 Commit Date: 22-November-2024 10:00 PM
-Project:    Snake Client
+Project:    Snake
 Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use in Academic Coursework.```
 ```
 
-# Comments to Evaluators:
 1. We spoke with TA Parker who told us that since logging was not asked for in the assignment instructions, we would not need to add logging to our solution.  
 2. We were also told that the baseline for program prettiness was using images and colorful snakes. We were not required to make a 1-to-1 replication of Professor de St Germaines' solution. For example, we are not required to add powerups that explode upon eating them.  
 3. We were also told by a TA that we needed to ensure that when put into release mode the output window would NOT show any extraneous messages. So we made sure of that.  

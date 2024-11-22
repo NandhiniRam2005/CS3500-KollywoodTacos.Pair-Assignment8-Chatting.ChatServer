@@ -169,4 +169,19 @@ public class NetworkController
             ServerSnake.Send(@"{""moving"":""right""}");
         }
     }
+
+    /// <summary>
+    /// This method disconnects the server and removes the user's snake from the game world.
+    /// <param name="world">The World object representing the game state.</param>
+    /// </summary>
+    public void HandleDisconnectingClient(World world)
+    {
+        ServerSnake.Disconnect();
+        ServerSnake = new(NullLogger.Instance);
+
+        lock (world)
+        {
+            world.Snakes.Remove(world.WorldID);
+        }
+    }
 }

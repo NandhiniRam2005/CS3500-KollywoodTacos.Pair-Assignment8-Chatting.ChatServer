@@ -547,16 +547,11 @@
 	}
 
 	/// <summary>
-	/// This method disconnects the server and removes the user's snake from the game world.
+	/// This method handles when the user is leaving the game by calling our method in NetworkController.
 	/// </remarks>
 	[JSInvokable]
 	public void HandleUserLeaving()
 	{
-		networkController.ServerSnake.Disconnect();
-		networkController.ServerSnake = new(NullLogger.Instance);
-		lock (world)
-		{
-			world.Snakes.Remove(world.WorldID);
-		}
+		networkController.HandleDisconnectingClient(world);
 	}
 }

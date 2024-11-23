@@ -1,10 +1,10 @@
-﻿// <copyright file="NetworkConnection.cs" company="UofU-CS3500">
+﻿// <copyright file="Powerup.cs" company="UofU-CS3500">
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
-using System.Text.Json.Serialization;
-
+// Ignore Spelling: Powerup loc
 namespace Snake.Client.Models;
+using System.Text.Json.Serialization;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -31,34 +31,34 @@ namespace Snake.Client.Models;
 /// </summary>
 public class Powerup
 {
-	/// <summary>
-	/// Gets or sets the unique power up ID for the power-up.
-	/// </summary>
-	[JsonInclude]
-	public int power {  get; set; }
-
-	/// <summary>
-	/// Gets or sets the location of the power-up.
-	/// </summary>
-	[JsonInclude]
-	public Point2D loc { get; set; }
-
-	/// <summary>
-	/// Gets or sets a value indicating whether the power-up has been eaten (died) or still active".
-	/// </summary>
-	[JsonInclude]
-	public bool died { get; set; }
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Powerup"/> class.
-	/// </summary>
-	/// <param name="power">The unique ID for the power-up.</param>
-	/// <param name="loc">The location of the power-up.</param>
-	/// <param name="died">Indicates whether the power-up has been eaten (died) or still active."</param>
-	public Powerup(int power, Point2D loc, bool died)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Powerup"/> class.
+    /// </summary>
+    /// <param name="power">The unique ID for the power-up.</param>
+    /// <param name="loc">The location of the power-up.</param>
+    /// <param name="died">Indicates whether the power-up has been eaten (died) or still active.</param>
+    public Powerup(int power, Point2D loc, bool died)
     {
         this.power = power;
         this.loc = loc;
         this.died = died;
     }
+
+    /// <summary>
+    /// Gets or sets the unique power up ID for the power-up.
+    /// </summary>
+    [JsonInclude]
+    public int power {  get; set; }
+
+    /// <summary>
+    /// Gets or sets the location of the power-up.
+    /// </summary>
+    [JsonInclude]
+    public Point2D loc { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the power-up has been eaten (died) or still active".
+    /// </summary>
+    [JsonInclude]
+    public bool died { get; set; }
 }

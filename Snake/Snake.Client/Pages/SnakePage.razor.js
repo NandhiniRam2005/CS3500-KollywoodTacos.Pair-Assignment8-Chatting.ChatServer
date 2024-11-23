@@ -98,9 +98,13 @@ window.addEventListener("unload", () =>
     animating = false;
 });
 
+/**
+ * Listens for when we traverese away from the page, either refreshing or exiting the page.
+ */
 window.addEventListener("beforeunload", () => {
     console.log("Networked JS: leaving page.");
 
+    //Needed to add try catch to fix warning.
     try {
         DotNetSide.invokeMethodAsync('HandleUserLeaving');
     } catch (error) {

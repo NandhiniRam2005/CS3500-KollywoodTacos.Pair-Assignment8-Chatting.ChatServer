@@ -1,9 +1,9 @@
-﻿// <copyright file="NetworkConnection.cs" company="UofU-CS3500">
+﻿// <copyright file="Wall.cs" company="UofU-CS3500">
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
-using System.Text.Json.Serialization;
 namespace Snake.Client.Models;
+using System.Text.Json.Serialization;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -29,34 +29,34 @@ namespace Snake.Client.Models;
 /// </summary>
 public class Wall
 {
-	/// <summary>
-	/// Gets or sets the unique wall ID for the wall.
-	/// </summary>
-	[JsonInclude]
-	public int wall {  get; set; }
-
-	/// <summary>
-	/// Gets or sets one endpoint of the wall.
-	/// </summary>
-	[JsonInclude]
-	public Point2D p1 { get; set; }
-
-	/// <summary>
-	/// Gets or sets another endpoint of the wall.
-	/// </summary>
-	[JsonInclude]
-	public Point2D p2 { get; set; }
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Wall"/> class.
-	/// </summary>
-	/// <param name="wall">The unique wall ID for the wall.</param>
-	/// <param name="p1">One of the wall.</param>
-	/// <param name="p2">Another endpoint of the wall.</param>
-	public Wall(int wall, Point2D p1, Point2D p2)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Wall"/> class.
+    /// </summary>
+    /// <param name="wall">The unique wall ID for the wall.</param>
+    /// <param name="p1">One of the wall.</param>
+    /// <param name="p2">Another endpoint of the wall.</param>
+    public Wall(int wall, Point2D p1, Point2D p2)
     {
         this.wall = wall;
         this.p1 = p1;
         this.p2 = p2;
     }
+
+    /// <summary>
+    /// Gets or sets the unique wall ID for the wall.
+    /// </summary>
+    [JsonInclude]
+    public int wall {  get; set; }
+
+    /// <summary>
+    /// Gets or sets one endpoint of the wall.
+    /// </summary>
+    [JsonInclude]
+    public Point2D p1 { get; set; }
+
+    /// <summary>
+    /// Gets or sets another endpoint of the wall.
+    /// </summary>
+    [JsonInclude]
+    public Point2D p2 { get; set; }
 }

@@ -1,13 +1,11 @@
-﻿// <copyright file="NetworkConnection.cs" company="UofU-CS3500">
+﻿// <copyright file="World.cs" company="UofU-CS3500">
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
-// Ignore Spelling: json Powerups
-
+// Ignore Spelling: json powerups
+namespace Snake.Client.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
-namespace Snake.Client.Models;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -25,7 +23,7 @@ namespace Snake.Client.Models;
 /// File Contents
 ///     This class represents the game world in the Snake game.
 ///     The class maintains collections of walls, snakes, and power-ups. It supports JSON deserialization
-///     to update the game state constantly, facilitating the addition, update, or removal of objects 
+///     to update the game state constantly, facilitating the addition, update, or removal of objects
 ///     based on the game's current state.
 /// </summary>
 
@@ -35,76 +33,75 @@ namespace Snake.Client.Models;
 /// </summary>
 public class World
 {
-	/// <summary>
-	/// Gets or sets a dictionary of walls in the game world.
-	/// The key is the wall's unique ID, and the value is the Wall object.
-	/// </summary>
-	public Dictionary<int, Wall> Walls { get; set; }
+     /// <summary>
+    /// Initializes a new instance of the <see cref="World"/> class.
+    /// </summary>
+    /// <param name="walls">A dictionary of walls in the game world.</param>
+    /// <param name="snakes">A dictionary of snakes in the game world.</param>
+    /// <param name="powerups">A dictionary of power-ups in the game world.</param>
+    /// <param name="width">The width of the game world.</param>
+    /// <param name="height">The height of the game world.</param>
+    /// <param name="worldID">The unique ID of the world.</param>
+    public World(Dictionary<int, Wall> walls, Dictionary<int, Snake> snakes, Dictionary<int, Powerup> powerups, int width, int height, int worldID)
+    {
+        this.Walls = walls;
+        this.Snakes = snakes;
+        this.Powerups = powerups;
+        this.Height = height;
+        this.Width = width;
+        this.WorldID = worldID;
+    }
 
-	/// <summary>
-	/// Gets or sets a dictionary of snakes in the game world.
-	/// The key is the snake's unique ID, and the value is the Snake object.
-	/// </summary>
-	public Dictionary<int, Snake> Snakes { get; set; }
+    /// <summary>
+    /// Gets or sets a dictionary of walls in the game world.
+    /// The key is the wall's unique ID, and the value is the Wall object.
+    /// </summary>
+    public Dictionary<int, Wall> Walls { get; set; }
 
-	/// <summary>
-	/// Gets or sets a dictionary of power-ups in the game world.
-	/// The key is the power-up's unique ID, and the value is the Powerup object.
-	/// </summary>
-	public Dictionary<int, Powerup> Powerups { get; set; }
+    /// <summary>
+    /// Gets or sets a dictionary of snakes in the game world.
+    /// The key is the snake's unique ID, and the value is the Snake object.
+    /// </summary>
+    public Dictionary<int, Snake> Snakes { get; set; }
 
-	/// <summary>
-	/// Gets or sets the width of the game world.
-	/// This property is ignored during JSON serialization.
-	/// </summary>
-	[JsonIgnore]
+    /// <summary>
+    /// Gets or sets a dictionary of power-ups in the game world.
+    /// The key is the power-up's unique ID, and the value is the Powerup object.
+    /// </summary>
+    public Dictionary<int, Powerup> Powerups { get; set; }
+
+    /// <summary>
+    /// Gets or sets the width of the game world.
+    /// This property is ignored during JSON serialization.
+    /// </summary>
+    [JsonIgnore]
     public int Width { get; set; }
 
-	/// <summary>
-	/// Gets or sets the height of the game world.
-	/// This property is ignored during JSON serialization.
-	/// </summary>
-	[JsonIgnore]
-	public int Height { get; set; }
+    /// <summary>
+    /// Gets or sets the height of the game world.
+    /// This property is ignored during JSON serialization.
+    /// </summary>
+    [JsonIgnore]
+    public int Height { get; set; }
 
-	/// <summary>
-	/// Gets or sets the unique ID of the world.
-	/// </summary>
-	public int WorldID { get; set; }
+    /// <summary>
+    /// Gets or sets the unique ID of the world.
+    /// </summary>
+    public int WorldID { get; set; }
 
-	/// <summary>
-	/// Initializes a new instance of the <see cref="World"/> class.
-	/// </summary>
-	/// <param name="Walls">A dictionary of walls in the game world.</param>
-	/// <param name="Snakes">A dictionary of snakes in the game world.</param>
-	/// <param name="Powerups">A dictionary of power-ups in the game world.</param>
-	/// <param name="width">The width of the game world.</param>
-	/// <param name="height">The height of the game world.</param>
-	/// <param name="worldID">The unique ID of the world.</param>
-	public World(Dictionary<int, Wall> Walls, Dictionary<int, Snake> Snakes, Dictionary<int, Powerup> Powerups, int width, int height, int worldID)
-	{
-        this.Walls = Walls;
-        this.Snakes = Snakes;
-        this.Powerups = Powerups;
-		this.Height = height;
-		this.Width = width;
-		this.WorldID = worldID;
-	}
-
-	/// <summary>
-	/// Loads a game object from a JSON string and updates the world state accordingly.
-	/// If the JSON represents a wall, it adds the wall to the Walls dictionary.
-	/// If the JSON represents a power-up, it updates or removes it from the Powerups dictionary.
-	/// If the JSON represents a snake, it updates or removes it from the Snakes dictionary.
-	/// </summary>
-	/// <param name="jsonString">A JSON string representing a wall, power-up, or snake.</param>
-	public void load(string jsonString)
+    /// <summary>
+    /// Loads a game object from a JSON string and updates the world state accordingly.
+    /// If the JSON represents a wall, it adds the wall to the walls dictionary.
+    /// If the JSON represents a power-up, it updates or removes it from the powerups dictionary.
+    /// If the JSON represents a snake, it updates or removes it from the snakes dictionary.
+    /// </summary>
+    /// <param name="jsonString">A JSON string representing a wall, power-up, or snake.</param>
+    public void UpdateWorld(string jsonString)
     {
         if (jsonString.StartsWith(@"{""wall"""))
         {
             Wall wall = JsonSerializer.Deserialize<Wall>(jsonString)!;
-            Walls.Add(wall.wall,wall);
- 
+            Walls.Add(wall.wall, wall);
         }
         else if (jsonString.StartsWith(@"{""power"""))
         {
@@ -113,8 +110,8 @@ public class World
             {
                 if (!Powerups.ContainsKey(powerUp.power))
                 {
-					Powerups.Add(powerUp.power, powerUp);
-				}
+                    Powerups.Add(powerUp.power, powerUp);
+                }
                 else
                 {
                     Powerups[powerUp.power] = powerUp;
@@ -130,15 +127,15 @@ public class World
             Snake snake = JsonSerializer.Deserialize<Snake>(jsonString)!;
             if (!snake.died)
             {
-				if (!Snakes.ContainsKey(snake.snake))
-				{
-					Snakes.Add(snake.snake, snake);
-				}
-				else
-				{
-					Snakes[snake.snake] = snake;
-				}
-			}
+                if (!Snakes.ContainsKey(snake.snake))
+                {
+                    Snakes.Add(snake.snake, snake);
+                }
+                else
+                {
+                    Snakes[snake.snake] = snake;
+                }
+            }
             else
             {
                 Snakes.Remove(snake.snake);

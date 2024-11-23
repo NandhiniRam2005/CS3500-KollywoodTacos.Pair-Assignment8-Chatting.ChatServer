@@ -35,6 +35,16 @@ using System.Diagnostics;
 /// </summary>
 public class NetworkController
 {
+     /// <summary>
+    /// Stores the time when the connection was established.
+    /// </summary>
+    private DateTime connectTime = DateTime.Now;
+
+    /// <summary>
+    /// Represents the current direction of the player's snake.
+    /// </summary>
+    private string snakeDirection = "Up";
+
     /// <summary>
     /// Gets or sets the network connection to the game server, used to send and receive data.
     /// </summary>
@@ -44,21 +54,6 @@ public class NetworkController
     /// Gets or sets a value indicating whether the server's connected.
     /// </summary>
     public bool IsServerConnected { get; set; } = false;
-
-    /// <summary>
-    /// A string indicating the current status of the network connection.
-    /// </summary>
-    private string networkStatus = "Waiting For You to Connect";
-
-    /// <summary>
-    /// Stores the time when the connection was established.
-    /// </summary>
-    private DateTime connectTime = DateTime.Now;
-
-    /// <summary>
-    /// Represents the current direction of the player's snake.
-    /// </summary>
-    private string snakeDirection = "Up";
 
     /// <summary>
     /// Gets or sets the particular error message if there is any.
@@ -79,7 +74,6 @@ public class NetworkController
             try
             {
                 ServerSnake.Connect(serverUrl, port);
-                networkStatus = "Connected";
                 IsServerConnected = true;
                 connectTime = DateTime.Now;
             }
@@ -87,7 +81,6 @@ public class NetworkController
             {
                 ErrorMessage = e.Message;
                 IsServerConnected = false;
-                networkStatus = "Error";
             }
         }
 
@@ -116,17 +109,7 @@ public class NetworkController
                         // Lock the `world` object to safely update its state with the new dat
                         lock (world)
                         {
-                            world.load(worldJSON);
-                        }
-
-                        if (worldJSON.Contains(@"""dc"":true,"))
-                        {
-                            ServerSnake.Disconnect();
-                            ServerSnake = new(NullLogger.Instance);
-                            lock (world)
-                            {
-                                world.Snakes.Remove(world.WorldID);
-                            }
+                            world.UpdateWorld(worldJSON);
                         }
                     }
                 }
@@ -176,12 +159,12 @@ public class NetworkController
     /// </summary>
     public void HandleDisconnectingClient(World world)
     {
-        //    ServerSnake.Disconnect();
-        //    ServerSnake = new(NullLogger.Instance);
+        ServerSnake.Disconnect();
+        ServerSnake = new(NullLogger.Instance);
 
-        //    lock (world)
-        //    {
-        //        world.Snakes.Remove(world.WorldID);
-        //    }
+        lock (world)
+        {
+            world.Snakes.Remove(world.WorldID);
+        }
     }
 }

@@ -52,11 +52,12 @@ of time dedicated to it. We have also learned that it is good to not sit down an
 edge cases or possibly forgetting to do certain things in your work. WE think we have been getting slowly better with our time estimation skills and will
 continue to get better as the semester continues.
 
-# Time Management Skills  / Time Tracking - A8
+# Time Management Skills  / Time Tracking - A8 & A9
 Throughout this assignment we learned more about time tracking and how to accurately estimate our time and improve our time management skills. We both felt
 that working with a partner added more pressure to being focused because both of grades are on the line. This led to us working on the assignment more 
 diligently. We also felt like we were able to accurately predict how long the assignment take us, which was about 12 hours. We hope to take these skills into 
-our next assignments.
+our next assignments. On the snake client assignment was the first assignment where we felt we were able to accurately predict how long it would take us. We went only a couple
+hours over.
 
 # Time Expenditures:
 

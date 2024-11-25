@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using Snake.Client.Pages;
 using System.Diagnostics;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -35,7 +37,7 @@ using System.Diagnostics;
 /// </summary>
 public class NetworkController
 {
-     /// <summary>
+    /// <summary>
     /// Stores the time when the connection was established.
     /// </summary>
     private DateTime connectTime = DateTime.Now;
@@ -60,6 +62,29 @@ public class NetworkController
     /// </summary>
     public string ErrorMessage { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The information necessary for the program to connect to the Database.
+    /// </summary>
+    public static readonly string ConnectionString = string.Empty;
+
+    static NetworkController()
+    {
+        var builder = new ConfigurationBuilder();
+
+        builder.AddUserSecrets<NetworkController>();
+        IConfigurationRoot configuration = builder.Build();
+        var selectedSecrets = configuration.GetSection("Secrets");
+
+        ConnectionString = new SqlConnectionStringBuilder()
+        {
+            DataSource = "cs3500.eng.utah.edu, 14330",
+            InitialCatalog = "cs3500",
+            UserID = selectedSecrets["UserID"],
+            Password = selectedSecrets["UserPassword"],
+            ConnectTimeout = 15,
+            Encrypt = false,
+        }.ConnectionString;
+    }
     /// <summary>
     /// Handles the network connection to the game server. Establishes a connection,
     /// retrieves initial world information, and continuously receives updates from the server.
@@ -96,6 +121,7 @@ public class NetworkController
                 world.Height = int.Parse(ServerSnake.ReadLine());
                 world.Width = world.Height;
             }
+            // Add a new row to our games table.
 
             // Start a background task to continuously receive updates from the server
             await Task.Run(() =>
@@ -109,7 +135,39 @@ public class NetworkController
                         // Lock the `world` object to safely update its state with the new dat
                         lock (world)
                         {
+                            if (worldJSON.Contains("snake"))
+                            {
+                                // This parses the worldJSON and explicitly grabs the id and score.
+                                string[] splitJson = worldJSON.Split(',');
+                                string snakePortion = splitJson[0];
+                                string[] splitSnakePortion = snakePortion.Split(':');
+                                string stringID = splitSnakePortion[1];
+                                int ID = int.Parse(stringID);
+                                string scorePortion = splitJson[9];
+                                string[] splitScorePortion = scorePortion.Split(":");
+                                string stringScore = splitScorePortion[1];
+                                int score = int.Parse(stringScore);
+
+                                if (!world.Snakes.ContainsKey(ID))
+                                {
+                                    // add a row
+                                }
+                                else
+                                {
+                                    if(score > world.Snakes[ID].MaxScore)
+                                    {
+                                        world.Snakes[ID].MaxScore = score;
+                                    }
+                                    // update data base
+                                }
+                            }
+
                             world.UpdateWorld(worldJSON);
+                        }
+                        if (worldJSON.Contains("snake"))
+                        {
+                            Debug
+                            .WriteLine(worldJSON);
                         }
                     }
                 }
@@ -159,12 +217,12 @@ public class NetworkController
     /// </summary>
     public void HandleDisconnectingClient(World world)
     {
-        ServerSnake.Disconnect();
-        ServerSnake = new(NullLogger.Instance);
+        //ServerSnake.Disconnect();
+        //ServerSnake = new(NullLogger.Instance);
 
-        lock (world)
-        {
-            world.Snakes.Remove(world.WorldID);
-        }
+        //lock (world)
+        //{
+        //    world.Snakes.Remove(world.WorldID);
+        //}
     }
 }

@@ -15,6 +15,7 @@ using Snake.Client.Pages;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using static System.Formats.Asn1.AsnWriter;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -67,6 +68,8 @@ public class NetworkController
     /// </summary>
     public static readonly string ConnectionString = string.Empty;
 
+    private int gameID;
+
     static NetworkController()
     {
         var builder = new ConfigurationBuilder();
@@ -78,13 +81,14 @@ public class NetworkController
         ConnectionString = new SqlConnectionStringBuilder()
         {
             DataSource = "cs3500.eng.utah.edu, 14330",
-            InitialCatalog = "cs3500",
-            UserID = selectedSecrets["UserID"],
-            Password = selectedSecrets["UserPassword"],
+            InitialCatalog = "F2024_DB_u1432722",
+            UserID = "F2024_u1432722",
+            Password = "Hanuman12345$",
             ConnectTimeout = 15,
             Encrypt = false,
         }.ConnectionString;
     }
+
     /// <summary>
     /// Handles the network connection to the game server. Establishes a connection,
     /// retrieves initial world information, and continuously receives updates from the server.
@@ -110,7 +114,9 @@ public class NetworkController
         }
 
         var worldJSON = string.Empty;
-
+        bool addPlayerToDatabase = false;
+        int ID = 0;
+        int currentMaxScore = 0;
         // Once connected to the server, proceed with game initialization
         if (ServerSnake.IsConnected)
         {
@@ -122,20 +128,69 @@ public class NetworkController
                 world.Width = world.Height;
             }
             // Add a new row to our games table.
+            gameID = 0;
+            string startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+
+            try
+            {
+                using SqlConnection con = new SqlConnection(ConnectionString);
+                con.Open();
+
+                using SqlCommand command = new SqlCommand($"INSERT INTO Games VALUES ('{startTime}' , '{startTime}')", con);
+                using SqlDataReader reader = command.ExecuteReader();
+
+                // HTML stuff??
+                while (reader.Read())
+                {
+                    Debug.WriteLine(
+                        "{0} {1}",
+                        reader.GetInt32(0),
+                        reader.GetString(1));
+                }
+            }
+            catch (SqlException exception)
+            {
+                Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+            }
+
+            // Saving our gameID
+            try
+            {
+                using SqlConnection con = new SqlConnection(ConnectionString);
+                con.Open();
+
+                using (SqlCommand command = new SqlCommand($"SELECT ID FROM Games WHERE StartTime = '{startTime}' ", con))
+                {
+                    object result = command.ExecuteScalar(); // Execute query to get a single value
+
+                    if (result != null)
+                    {
+                        gameID = Convert.ToInt32(result); // Convert the result to an int
+                    }
+                    else
+                    {
+                        Debug.WriteLine("No game found for the specified StartTime.");
+                    }
+                }
+            }
+            catch (SqlException exception)
+            {
+                Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+            }
 
             // Start a background task to continuously receive updates from the server
             await Task.Run(() =>
             {
                 try
                 {
+                    Debug.WriteLine("Hello");
                     while (true)
                     {
                         worldJSON = ServerSnake.ReadLine();
-
                         // Lock the `world` object to safely update its state with the new dat
                         lock (world)
                         {
-                            if (worldJSON.Contains("snake"))
+                            if (worldJSON.Contains("snake") && ServerSnake.IsConnected)
                             {
                                 // This parses the worldJSON and explicitly grabs the id and score.
                                 string[] splitJson = worldJSON.Split(',');
@@ -143,39 +198,136 @@ public class NetworkController
                                 string[] splitSnakePortion = snakePortion.Split(':');
                                 string stringID = splitSnakePortion[1];
                                 int ID = int.Parse(stringID);
-                                string scorePortion = splitJson[9];
-                                string[] splitScorePortion = scorePortion.Split(":");
-                                string stringScore = splitScorePortion[1];
+                                string[] scorePortion = worldJSON.Split("score\":");
+                                string[] scorePortionReal = scorePortion[1].Split(",");
+                                string stringScore = scorePortionReal[0];
                                 int score = int.Parse(stringScore);
+                                string[] splitNamePortion = worldJSON.Split("name\":\"");
+                                string[] splitAfterNamePortion = splitNamePortion[1].Split("\"");
+                                string name = splitAfterNamePortion[0];
 
-                                if (!world.Snakes.ContainsKey(ID))
+                                // If the snake is new then lets add a row to our database.
+                                if (!world.Snakes.ContainsKey(ID) && worldJSON.Contains("alive\":true"))
                                 {
+                                    Debug.WriteLine(worldJSON);
+                                    string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                                    try
+                                    {
+                                        using SqlConnection con = new SqlConnection(ConnectionString);
+
+                                        con.Open();
+
+                                        using SqlCommand command = new SqlCommand($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{ID}', '{name}',  '{score}', '{enterTime}', '{enterTime}', '{gameID}' )", con);
+                                        using SqlDataReader reader = command.ExecuteReader();
+
+                                        // HTML step.
+                                        while (reader.Read())
+                                        {
+                                            Debug.WriteLine(
+                                                "{0} {1}",
+                                                reader.GetInt32(0),
+                                                reader.GetString(1));
+                                        }
+
+                                        addPlayerToDatabase = false;
+                                    }
+                                    catch (SqlException exception)
+                                    {
+                                        Debug.Write(worldJSON);
+                                        Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+                                    }
+
                                     // add a row
                                 }
-                                else
+                                else if (worldJSON.Contains("alive\":true"))
                                 {
-                                    if(score > world.Snakes[ID].MaxScore)
+                                    // Update the max score if applicable.
+                                    //Debug.WriteLine("CurrScore "+ score + " CurrMaxScore: " + currentMaxScore);
+
+                                    if (score > currentMaxScore)
                                     {
-                                        world.Snakes[ID].MaxScore = score;
+                                        //world.Snakes[ID].MaxScore = score;
+                                        currentMaxScore = score;
+                                        try
+                                        {
+                                            using SqlConnection con = new SqlConnection(ConnectionString);
+
+                                            con.Open();
+
+                                            using SqlCommand command = new SqlCommand($" UPDATE Players SET MaxScore='{score}' WHERE ID = '{ID}' AND GameID = '{gameID}' ", con);
+                                            using SqlDataReader reader = command.ExecuteReader();
+                                            Debug.WriteLine("I have occured");
+                                            // HTML step.
+                                            while (reader.Read())
+                                            {
+                                                Debug.WriteLine(
+                                                    "{0} {1}",
+                                                    reader.GetInt32(0),
+                                                    reader.GetString(1));
+                                            }
+                                        }
+                                        catch (SqlException exception)
+                                        {
+                                            Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+                                        }
                                     }
-                                    // update data base
                                 }
                             }
 
+
+
                             world.UpdateWorld(worldJSON);
+
                         }
-                        if (worldJSON.Contains("snake"))
+
+                        //If we see that dc is true update this players endtime
+                        if (worldJSON.Contains($"\"dc\":true"))
                         {
-                            Debug
-                            .WriteLine(worldJSON);
+                            string[] splitJson = worldJSON.Split(',');
+                            string snakePortion = splitJson[0];
+                            string[] splitSnakePortion = snakePortion.Split(':');
+                            string stringID = splitSnakePortion[1];
+                            int ID = int.Parse(stringID);
+                            string[] scorePortion = worldJSON.Split("score\":");
+                            string[] scorePortionReal = scorePortion[1].Split(",");
+                            string stringScore = scorePortionReal[0];
+                            int score = int.Parse(stringScore);
+                            string[] splitNamePortion = worldJSON.Split("name\":\"");
+                            string[] splitAfterNamePortion = splitNamePortion[1].Split("\"");
+                            string name = splitAfterNamePortion[0];
+                            string endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+                            try
+                            {
+                                using SqlConnection con = new SqlConnection(ConnectionString);
+
+                                con.Open();
+
+                                using SqlCommand command = new SqlCommand($"UPDATE Players SET LeaveTime = '{endTime}' WHERE ID = '{ID}' AND GameID = '{gameID}' ", con);
+                                using SqlDataReader reader = command.ExecuteReader();
+
+                                //HTML step.
+                                while (reader.Read())
+                                {
+                                    Debug.WriteLine(
+                                        "{0} {1}",
+                                        reader.GetInt32(0),
+                                        reader.GetString(1));
+                                }
+                            }
+                            catch (SqlException exception)
+                            {
+                                Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+                            }
+                            // NOW LETS CHECK TO SEE IF THEY ARE US (OUR CLIENT) (THIS CHECKS IF THEY DID NOT CLICK DISONNECT AND SIMPLY DID A REFRESH/X OUT
                         }
                     }
                 }
-                catch
+                catch (Exception e)
                 {
+                    Debug.WriteLine(e.Message);
                 }
 
-                ServerSnake.Disconnect();
+                //ServerSnake.Disconnect();
             });
         }
     }
@@ -190,24 +342,32 @@ public class NetworkController
     {
         if (!ServerSnake.IsConnected)
         {
+            Debug.WriteLine("Server is not connected stop pressing me.");
             return;
         }
 
         if (keyEvent == "ArrowUp" || (keyEvent == "w" && snakeDirection != "DOWN"))
         {
             ServerSnake.Send(@"{""moving"":""up""}");
+            //Debug.WriteLine("Up Pressed");
         }
         else if (keyEvent == "ArrowDown" || (keyEvent == "s" && snakeDirection != "UP"))
         {
             ServerSnake.Send(@"{""moving"":""down""}");
+            //Debug.WriteLine("Down Pressed");
+
         }
         else if (keyEvent == "ArrowLeft" || (keyEvent == "a" && snakeDirection != "RIGHT"))
         {
             ServerSnake.Send(@"{""moving"": ""left""}");
+            //Debug.WriteLine("Left Pressed");
+
         }
         else if (keyEvent == "ArrowRight" || (keyEvent == "d" && snakeDirection != "LEFT"))
         {
             ServerSnake.Send(@"{""moving"":""right""}");
+            //Debug.WriteLine("Right Pressed");
+
         }
     }
 
@@ -217,12 +377,66 @@ public class NetworkController
     /// </summary>
     public void HandleDisconnectingClient(World world)
     {
-        //ServerSnake.Disconnect();
-        //ServerSnake = new(NullLogger.Instance);
+        ServerSnake.Disconnect();
+        ServerSnake = new(NullLogger.Instance);
+        string endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+        lock (world)
+        {
+            world.Snakes.Remove(world.WorldID);
 
-        //lock (world)
-        //{
-        //    world.Snakes.Remove(world.WorldID);
-        //}
+
+
+            try
+            {
+                using SqlConnection con = new SqlConnection(ConnectionString);
+
+                con.Open();
+
+                using SqlCommand command = new SqlCommand($"UPDATE Players SET LeaveTime = '{endTime}' WHERE ID = '{world.WorldID}' AND GameID = '{gameID}' ", con);
+                using SqlDataReader reader = command.ExecuteReader();
+
+                //HTML step.
+                while (reader.Read())
+                {
+                    Debug.WriteLine(
+                        "{0} {1}",
+                        reader.GetInt32(0),
+                        reader.GetString(1));
+                }
+            }
+            catch (SqlException exception)
+            {
+                Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+            }
+            // NOW LETS CHECK TO SEE IF THEY ARE US (OUR CLIENT) (THIS CHECKS IF THEY DID NOT CLICK DISONNECT AND SIMPLY DID A REFRESH/X OUT
+
+        }
+
+
+        try
+        {
+            using SqlConnection con = new SqlConnection(ConnectionString);
+
+            con.Open();
+
+            using SqlCommand command = new SqlCommand($" UPDATE Games SET EndTime='{endTime}' WHERE ID = '{gameID}'", con);
+            using SqlDataReader reader = command.ExecuteReader();
+
+            //HTML step.
+            while (reader.Read())
+            {
+                Debug.WriteLine(
+                    "{0} {1}",
+                    reader.GetInt32(0),
+                    reader.GetString(1));
+            }
+        }
+        catch (SqlException exception)
+        {
+            Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
+        }
+
+        // Now we get in Players where ID = the ID and GameID = the GameID we gonna add a leaveTime AND go to Games and update the endTime where
+        // it is the Gane ID (look to your notes for example.
     }
 }

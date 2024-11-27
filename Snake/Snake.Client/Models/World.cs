@@ -101,7 +101,13 @@ public class World
         if (jsonString.StartsWith(@"{""wall"""))
         {
             Wall wall = JsonSerializer.Deserialize<Wall>(jsonString)!;
-            Walls.Add(wall.wall, wall);
+            try
+            {
+                Walls.Add(wall.wall, wall);
+            }
+            catch
+            {
+            }
         }
         else if (jsonString.StartsWith(@"{""power"""))
         {

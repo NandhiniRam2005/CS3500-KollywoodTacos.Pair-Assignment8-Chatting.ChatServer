@@ -58,6 +58,7 @@
 	<input id="connectedInput" type="number" @bind="Port" readonly="@isConnected" />
 
 	<button disabled="@isConnected" class="btn btn-primary" @onclick="Connect">Connect</button>
+	<button disabled="@isNotConnected" class="btn btn-primary" @onclick="HandleUserLeaving">Disconnect</button>
 
 </div>
 <label for="Network Status" id="status">Connection Status: </label>
@@ -118,7 +119,16 @@
 	/// Represents the reference to the grass terrain image element.
 	/// </summary>
 	private ElementReference grassTerrain;
+
+	/// <summary>
+	/// Is the server connected or not
+	/// </summary>
 	public bool isConnected { get; set; } = false;
+
+	/// <summary>
+	/// Is the server not connected, needed for disabling buttons.
+	/// </summary>
+	public bool isNotConnected { get; set; } = true;
 
 	/// <summary>
 	/// Represents the current state of the game world, including walls, snakes, and power-ups.
@@ -249,26 +259,25 @@
 	private void Connect()
 	{
 		Logger.LogInformation("Connecting!");
-		if (!networkController.IsServerConnected)
-		{
 
-
-			networkController.HandleNetwork(world, ServerAddress, Port, Name);
-			if (networkController.IsServerConnected)
-			{
-				isConnected = true;
-				networkStatus = "Connected!";
-			}
-			else
-			{
-				ShowServerConnectionFailedMessage();
-				networkStatus = "Failed to connect to server. " + networkController.ErrorMessage;
-			}
-
-		}
+		networkController.HandleNetwork(world, ServerAddress, Port, Name);
 		if (networkController.IsServerConnected)
 		{
 			isConnected = true;
+			isNotConnected = false;
+			networkStatus = "Connected!";
+		}
+		else
+		{
+			ShowServerConnectionFailedMessage();
+			networkStatus = "Failed to connect to server. " + networkController.ErrorMessage;
+		}
+
+
+		if (networkController.IsServerConnected)
+		{
+			isConnected = true;
+			isNotConnected = false;
 		}
 
 	}
@@ -552,6 +561,13 @@
 	[JSInvokable]
 	public void HandleUserLeaving()
 	{
+		isConnected = false;
+		isNotConnected = true;
 		networkController.HandleDisconnectingClient(world);
+		if (networkController.IsServerConnected)
+		{
+			networkStatus = "Disconnected... Waiting for connection";
+		}
+
 	}
 }

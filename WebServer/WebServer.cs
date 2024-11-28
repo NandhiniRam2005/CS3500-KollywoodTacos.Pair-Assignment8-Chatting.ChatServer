@@ -67,8 +67,8 @@ public partial class WebServer
         {
             DataSource = "cs3500.eng.utah.edu, 14330",
             InitialCatalog = "F2024_DB_u1432722",
-            UserID = "F2024_u1432722",
-            Password = "Hanuman12345$",
+            UserID = selectedSecrets["UserID"],
+            Password = selectedSecrets["UserPassword"],
             ConnectTimeout = 15,
             Encrypt = false,
         }.ConnectionString;

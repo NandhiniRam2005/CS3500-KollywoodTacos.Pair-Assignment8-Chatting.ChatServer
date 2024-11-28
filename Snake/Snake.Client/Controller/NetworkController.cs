@@ -89,8 +89,8 @@ public class NetworkController
         {
             DataSource = "cs3500.eng.utah.edu, 14330",
             InitialCatalog = "F2024_DB_u1432722",
-            UserID = "F2024_u1432722",
-            Password = "Hanuman12345$",
+            UserID = selectedSecrets["UserID"],
+            Password = selectedSecrets["UserPassword"],
             ConnectTimeout = 15,
             Encrypt = false,
         }.ConnectionString;
@@ -206,7 +206,7 @@ public class NetworkController
                                     string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
                                     // Query the database to add a row to the players table.
-                                    MakeDatabaseQuery($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{snakeID}', '{name}',  '{score}', '{enterTime}', '{enterTime}', '{gameID}' )")
+                                    MakeDatabaseQuery($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{snakeID}', '{name}',  '{score}', '{enterTime}', '{enterTime}', '{gameID}' )");
                                 }
 
                                 // If the snake already exists in the database then update it if necessary.

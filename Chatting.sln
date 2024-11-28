@@ -16,9 +16,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snake", "Snake\Snake\Snake.csproj", "{C9C4AB4E-A935-48A8-8EFF-83ECF836BCAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Snake", "Snake\Snake\Snake.csproj", "{C9C4AB4E-A935-48A8-8EFF-83ECF836BCAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snake.Client", "Snake\Snake.Client\Snake.Client.csproj", "{BBAB1530-C853-48C6-8F0F-290394F8DE4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Snake.Client", "Snake\Snake.Client\Snake.Client.csproj", "{BBAB1530-C853-48C6-8F0F-290394F8DE4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{999672EE-05BF-4477-9EB0-E49364369826}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{BBAB1530-C853-48C6-8F0F-290394F8DE4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBAB1530-C853-48C6-8F0F-290394F8DE4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBAB1530-C853-48C6-8F0F-290394F8DE4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{999672EE-05BF-4477-9EB0-E49364369826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{999672EE-05BF-4477-9EB0-E49364369826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{999672EE-05BF-4477-9EB0-E49364369826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{999672EE-05BF-4477-9EB0-E49364369826}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

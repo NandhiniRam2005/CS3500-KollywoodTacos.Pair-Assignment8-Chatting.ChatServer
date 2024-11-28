@@ -112,7 +112,7 @@ public class Snake
     public bool join { get; set; }
 
     /// <summary>
-    /// Gets or sets the max score of this snake
+    /// Gets or sets the max score of this snake.
     /// </summary>
     [JsonIgnore]
     public int MaxScore { get; set; } = 0;

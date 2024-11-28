@@ -31,8 +31,14 @@ Future extensions of the chatting client is to apply it to our game project.
 Our snake client is able to handle multiple users at the same time and keep multiple snakes in play with a score board of all the clients in play. This game
 has various elements grouped in our model class that are used in our "View" part in the razor file to draw the model elements such as the snake, walls, powerups, 
 point2D (used as grid coordinates), and the world. We also have a Controller folder that handles the control keys for the snake (directions) and the network status.
-We also have logging messages throughout used for debugging.
+Our controller has the added functionality of connecting to a database and updating it in real time based on our game's current status.
+We also have logging messages throughout used for debugging. 
 
+# Overview of the Snake Client functionality
+Our Webserver  is connected to our data base to show the Snake Game's status of the games and players playing it. It is designed to handle 
+HTTP requests and responses. The server processes incoming client requests and supports basic web server functionalities. This Web Server 
+console app has three main basic html functionalities from showing the home page, the list of games (games table from database), and links 
+to the player's table showing their name, ID, max score, start and end time.
 
 # Examples of Good Software Practice (GSP).  
 1. Self Documenting Code - My code uses good variable names and easy to read syntax. For example I vouch for using for each statements with good variable names 
@@ -84,3 +90,15 @@ hours over.
                                                                                    Effectively:     18
                                                                                    Debugging:       1
                                                                                    Learning Tools:  6
+
+    3. Assignment 10: Snake DB and Web Server                Predicted Hours:            Actual Hours:   
+                                                             Joel Rodriguez:                                                                             
+                                                                                Hours Spent - 
+                                                                                   Effectively:     
+                                                                                   Debugging:       
+                                                                                   Learning Tools:  
+                                                             Nandhini Ramanathan:                                                                             
+                                                                                Hours Spent - 
+                                                                                   Effectively:     
+                                                                                   Debugging:       
+                                                                                   Learning Tools:  

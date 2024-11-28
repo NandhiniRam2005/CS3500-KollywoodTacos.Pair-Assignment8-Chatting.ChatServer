@@ -68,6 +68,8 @@ public class NetworkController
     /// </summary>
     public static readonly string ConnectionString = string.Empty;
 
+    public Dictionary<int, int> snakesMaxScores = new Dictionary<int, int>();
+
     private int gameID;
 
     static NetworkController()
@@ -210,6 +212,7 @@ public class NetworkController
                                 if (!world.Snakes.ContainsKey(ID) && worldJSON.Contains("alive\":true"))
                                 {
                                     Debug.WriteLine(worldJSON);
+                                    snakesMaxScores.Add(ID, 0);
                                     string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
                                     try
                                     {
@@ -244,10 +247,10 @@ public class NetworkController
                                     // Update the max score if applicable.
                                     //Debug.WriteLine("CurrScore "+ score + " CurrMaxScore: " + currentMaxScore);
 
-                                    if (score > currentMaxScore)
+                                    if (score > snakesMaxScores[ID])
                                     {
                                         //world.Snakes[ID].MaxScore = score;
-                                        currentMaxScore = score;
+                                        snakesMaxScores[ID] = score;
                                         try
                                         {
                                             using SqlConnection con = new SqlConnection(ConnectionString);

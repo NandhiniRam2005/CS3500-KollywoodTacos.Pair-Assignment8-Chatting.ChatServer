@@ -23,6 +23,10 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 11. When we run our code (on one of our computers) the frame rate starts a bit slower and quickly picks up to about 60 just so you know.
 12. On my Computer, sometimes (pretty rare) the snake's controllers (down, right, etc) is a little laggy. When I checked my Task manager the CPU is barely being used on Visual studio like it didn't want to keep up or use the CPU on it. This only happens sometimes, but has never happened on my partern's laptop just so you know if it happens to you.
 13. In our model classes the stylecop complains of properties not being started with a capital letter. This is unavoidable as it how the server wants to properties to be named. We could use JSONPropertyName attribute but for some reason doing this would give a weird compiler error so we decided to go with the working solution. We spoke with a TA and they said that some warnings are fine to have in our code.
+1. We were told that both the webserver and the snake game can run on port 11000 and that it was expected by a TA. So that is what we did.
+2. We were also told that adding a new property to the Snake model is not required and that we can do whatever we thought was best and worked best 
+   this is why we decided to not add a property and have the max scores live inside the networkController class since it that is the only place it is used.
+3. 
 # Assignment Specific Topics
 Our assignment specific topics include creating a GUI that will connect to a networked Snake Server and display the status of the game.  
 We also send commands to the Snake Server representing the “moves” made by the player of the game. We also learned how to draw elements (in the draw method)

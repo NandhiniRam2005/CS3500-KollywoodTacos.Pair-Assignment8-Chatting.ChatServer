@@ -34,7 +34,7 @@ point2D (used as grid coordinates), and the world. We also have a Controller fol
 Our controller has the added functionality of connecting to a database and updating it in real time based on our game's current status.
 We also have logging messages throughout used for debugging. 
 
-# Overview of the Snake Client functionality
+# Overview of the Snake Client functionality (A11)
 Our Webserver  is connected to our data base to show the Snake Game's status of the games and players playing it. It is designed to handle 
 HTTP requests and responses. The server processes incoming client requests and supports basic web server functionalities. This Web Server 
 console app has three main basic html functionalities from showing the home page, the list of games (games table from database), and links 

@@ -46,7 +46,7 @@ public class NetworkController
     /// <summary>
     /// Dictionary to store the maximum score achieved by each snake, indexed by snake ID.
     /// </summary>
-    public Dictionary<int, int> snakesMaxScores = new Dictionary<int, int>();
+    private Dictionary<int, int> snakesMaxScores = new Dictionary<int, int>();
 
     /// <summary>
     /// Stores the time when the connection was established.
@@ -57,21 +57,6 @@ public class NetworkController
     /// Represents the current direction of the player's snake.
     /// </summary>
     private string snakeDirection = "Up";
-
-    /// <summary>
-    /// Gets or sets the network connection to the game server, used to send and receive data.
-    /// </summary>
-    public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the server's connected.
-    /// </summary>
-    public bool IsServerConnected { get; set; } = false;
-
-    /// <summary>
-    /// Gets or sets the particular error message if there is any.
-    /// </summary>
-    public string ErrorMessage { get; set; } = string.Empty;
 
     /// <summary>
     /// Initializes static members of the <see cref="NetworkController"/> class.
@@ -95,6 +80,21 @@ public class NetworkController
             Encrypt = false,
         }.ConnectionString;
     }
+
+    /// <summary>
+    /// Gets or sets the network connection to the game server, used to send and receive data.
+    /// </summary>
+    public NetworkConnection ServerSnake { get; set; } = new(NullLogger.Instance);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the server's connected.
+    /// </summary>
+    public bool IsServerConnected { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the particular error message if there is any.
+    /// </summary>
+    public string ErrorMessage { get; set; } = string.Empty;
 
     /// <summary>
     /// Handles the network connection to the game server. Establishes a connection,
@@ -137,29 +137,14 @@ public class NetworkController
             gameID = 0;
             string startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
-            MakeDatabaseQuery($"INSERT INTO Games VALUES ('{startTime}' , '{startTime}')");
-
-            // Retrieve and store the game ID.
             try
             {
                 using SqlConnection con = new SqlConnection(ConnectionString);
                 con.Open();
 
-                using (SqlCommand command = new SqlCommand($"SELECT ID FROM Games WHERE StartTime = '{startTime}' ", con))
-                {
-                    // Execute query to get a single value
-                    object result = command.ExecuteScalar();
+                using SqlCommand command = new SqlCommand($"INSERT INTO Games VALUES ('{startTime}' , '{startTime}');  SELECT SCOPE_IDENTITY();", con);
 
-                    if (result != null)
-                    {
-                        // Convert the result to an int
-                        gameID = Convert.ToInt32(result);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("No game found for the specified StartTime.");
-                    }
-                }
+                gameID = Convert.ToInt32(command.ExecuteScalar());
             }
             catch (SqlException exception)
             {
@@ -228,22 +213,12 @@ public class NetworkController
                         // If we see that dc is true update this players endtime.
                         if (worldJSON.Contains($"\"dc\":true"))
                         {
-                            // This parses the worldJSON and explicitly grabs the id, score, and name.
+                            // This parses the worldJSON and explicitly grabs the id. This code is needed again and not able to be put into a helper method since both cases of the code get different information.
                             string[] splitJson = worldJSON.Split(',');
-
                             string snakePortion = splitJson[0];
                             string[] splitSnakePortion = snakePortion.Split(':');
                             string stringID = splitSnakePortion[1];
                             int snakeID = int.Parse(stringID);
-
-                            string[] scorePortion = worldJSON.Split("score\":");
-                            string[] scorePortionReal = scorePortion[1].Split(",");
-                            string stringScore = scorePortionReal[0];
-                            int score = int.Parse(stringScore);
-
-                            string[] splitNamePortion = worldJSON.Split("name\":\"");
-                            string[] splitAfterNamePortion = splitNamePortion[1].Split("\"");
-                            string name = splitAfterNamePortion[0];
 
                             string endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
@@ -270,7 +245,6 @@ public class NetworkController
     {
         if (!ServerSnake.IsConnected)
         {
-            Debug.WriteLine("Server is not connected stop pressing me.");
             return;
         }
 

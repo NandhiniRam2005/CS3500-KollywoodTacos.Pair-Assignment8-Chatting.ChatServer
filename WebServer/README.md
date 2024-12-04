@@ -14,7 +14,8 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 1. We were told that both the webserver and the snake game can run on port 11000 and that it was expected by a TA. So that is what we did.
 2. We were also told that adding a new property to the Snake model is not required and that we can do whatever we thought was best and worked best 
    this is why we decided to not add a property and have the max scores live inside the networkController class since it that is the only place it is used.
-3. 
+3. Our webserver does not use a Players or Games class we were told that this was not necessary for getting 100 by a TA. We were told that as long as were able to get things
+   working then there was not anything that we were required to do. For example we did not use ORM's.
 
 # Assignment Specific Topics
 Our assignment specific topics include creating a Webserver that is connected to our data base to show the Snake Game's status oof the 

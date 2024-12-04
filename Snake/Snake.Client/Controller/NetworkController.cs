@@ -34,11 +34,6 @@ using Microsoft.Extensions.Configuration;
 public class NetworkController
 {
     /// <summary>
-    /// The information necessary for the program to connect to the Database.
-    /// </summary>
-    public static readonly string ConnectionString = string.Empty;
-
-    /// <summary>
     /// Stores the game ID retrieved from the database.
     /// </summary>
     private int gameID;
@@ -58,28 +53,12 @@ public class NetworkController
     /// </summary>
     private string snakeDirection = "Up";
 
+    private string startTime = string.Empty;
+
     /// <summary>
-    /// Initializes static members of the <see cref="NetworkController"/> class.
-    /// Constructor to initialize the database connection string using user secrets.
+    /// 
     /// </summary>
-    static NetworkController()
-    {
-        var builder = new ConfigurationBuilder();
-
-        builder.AddUserSecrets<NetworkController>();
-        IConfigurationRoot configuration = builder.Build();
-        var selectedSecrets = configuration.GetSection("Secrets");
-
-        ConnectionString = new SqlConnectionStringBuilder()
-        {
-            DataSource = "cs3500.eng.utah.edu, 14330",
-            InitialCatalog = "F2024_DB_u1432722",
-            UserID = selectedSecrets["UserID"],
-            Password = selectedSecrets["UserPassword"],
-            ConnectTimeout = 15,
-            Encrypt = false,
-        }.ConnectionString;
-    }
+    private string intitalEndTime = "2004-11-01 8:43:21";
 
     /// <summary>
     /// Gets or sets the network connection to the game server, used to send and receive data.
@@ -121,7 +100,6 @@ public class NetworkController
         }
 
         var worldJSON = string.Empty;
-
         // Once connected to the server, proceed with game initialization
         if (ServerSnake.IsConnected)
         {
@@ -134,22 +112,8 @@ public class NetworkController
             }
 
             // Add a new row to our games table by querying the database.
-            gameID = 0;
-            string startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-
-            try
-            {
-                using SqlConnection con = new SqlConnection(ConnectionString);
-                con.Open();
-
-                using SqlCommand command = new SqlCommand($"INSERT INTO Games VALUES ('{startTime}' , '{startTime}');  SELECT SCOPE_IDENTITY();", con);
-
-                gameID = Convert.ToInt32(command.ExecuteScalar());
-            }
-            catch (SqlException exception)
-            {
-                Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
-            }
+            startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+            gameID = SQLQueries.AddGameAndReturnID();
 
             // Start a background task to continuously receive updates from the server
             await Task.Run(() =>
@@ -191,7 +155,7 @@ public class NetworkController
                                     string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
                                     // Query the database to add a row to the players table.
-                                    MakeDatabaseQuery($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{snakeID}', '{name}',  '{score}', '{enterTime}', '{enterTime}', '{gameID}' )");
+                                    SQLQueries.AddPlayer(snakeID, name, score, enterTime, intitalEndTime, gameID);
                                 }
 
                                 // If the snake already exists in the database then update it if necessary.
@@ -202,7 +166,7 @@ public class NetworkController
                                     {
                                         snakesMaxScores[snakeID] = score;
 
-                                        MakeDatabaseQuery($" UPDATE Players SET MaxScore='{score}' WHERE ID = '{snakeID}' AND GameID = '{gameID}' ");
+                                        SQLQueries.UpdatePlayerMaxScore(score, snakeID, gameID);
                                     }
                                 }
                             }
@@ -223,7 +187,7 @@ public class NetworkController
                             string endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
                             // Query the database to update the player's leave time.
-                            MakeDatabaseQuery($"UPDATE Players SET LeaveTime = '{endTime}' WHERE ID = '{snakeID}' AND GameID = '{gameID}' ");
+                            SQLQueries.UpdateLeaveTimeForPlayer(endTime, snakeID, gameID);
                         }
                     }
                 }
@@ -281,38 +245,10 @@ public class NetworkController
             world.Snakes.Remove(world.WorldID);
 
             // Query the data base to update player's leave time when client disconnects.
-            MakeDatabaseQuery($"UPDATE Players SET LeaveTime = '{endTime}' WHERE ID = '{world.WorldID}' AND GameID = '{gameID}' ");
+            SQLQueries.UpdateLeaveTimeAllPlayersInGame(intitalEndTime, endTime, gameID);
         }
 
         // Query the data base to update game's leave time when client disconnects.
-        MakeDatabaseQuery($" UPDATE Games SET EndTime='{endTime}' WHERE ID = '{gameID}'");
-    }
-
-    /// <summary>
-    /// Makes a database query with the provided SQL command string.
-    /// </summary>
-    /// <param name="query">The SQL query to execute.</param>
-    private void MakeDatabaseQuery(string query)
-    {
-        try
-        {
-            using SqlConnection con = new SqlConnection(ConnectionString);
-            con.Open();
-
-            using SqlCommand command = new SqlCommand(query, con);
-            using SqlDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                Debug.WriteLine(
-                    "{0} {1}",
-                    reader.GetInt32(0),
-                    reader.GetString(1));
-            }
-        }
-        catch (SqlException exception)
-        {
-            Debug.WriteLine($"Error in SQL connection:\n   - {exception.Message}");
-        }
+        SQLQueries.UpdateGameEndTime(endTime, gameID);
     }
 }

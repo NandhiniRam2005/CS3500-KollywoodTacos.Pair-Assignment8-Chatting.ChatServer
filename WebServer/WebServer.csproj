@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Networking\Networking.csproj" />
+    <ProjectReference Include="..\Snake\Snake.Client\Snake.Client.csproj" />
   </ItemGroup>
 
 </Project>

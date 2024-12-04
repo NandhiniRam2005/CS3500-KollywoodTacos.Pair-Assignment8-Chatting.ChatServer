@@ -117,7 +117,6 @@ public class NetworkController
             {
                 try
                 {
-                    Debug.WriteLine("Hello");
                     while (true)
                     {
                         worldJSON = ServerSnake.ReadLine();
@@ -147,7 +146,6 @@ public class NetworkController
                                 // If the snake is new then lets add a row to our database.
                                 if (!world.Snakes.ContainsKey(snakeID) && worldJSON.Contains("alive\":true"))
                                 {
-                                    Debug.WriteLine(worldJSON);
                                     snakesMaxScores.Add(snakeID, 0);
                                     string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 

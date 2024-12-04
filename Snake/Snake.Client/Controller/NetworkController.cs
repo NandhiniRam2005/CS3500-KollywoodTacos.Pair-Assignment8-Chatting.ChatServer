@@ -53,10 +53,8 @@ public class NetworkController
     /// </summary>
     private string snakeDirection = "Up";
 
-    private string startTime = string.Empty;
-
     /// <summary>
-    /// 
+    /// The initial endTime assigned to all players, put as a constant for ease of logic when disconnect multiple players.
     /// </summary>
     private string intitalEndTime = "2004-11-01 8:43:21";
 
@@ -112,7 +110,6 @@ public class NetworkController
             }
 
             // Add a new row to our games table by querying the database.
-            startTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
             gameID = SQLQueries.AddGameAndReturnID();
 
             // Start a background task to continuously receive updates from the server

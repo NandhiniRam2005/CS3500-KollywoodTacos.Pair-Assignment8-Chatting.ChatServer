@@ -89,16 +89,16 @@ public class SQLQueries
     /// <param name="name"> The name of said player/snake. </param>
     /// <param name="score"> The initial score of said player (0).</param>
     /// <param name="enterTime">The time when the player/snake joined.</param>
-    /// <param name="eaveTime"> The initial leave time which is needed by SQL.</param>
+    /// <param name="leaveTime"> The initial leave time which is needed by SQL.</param>
     /// <param name="gameID"> The id of the game for which the snake joined.</param>
-    public static void AddPlayer(int snakeID, string name, int score, string enterTime, string eaveTime, int gameID)
+    public static void AddPlayer(int snakeID, string name, int score, string enterTime, string leaveTime, int gameID)
     {
         try
         {
             using SqlConnection con = new SqlConnection(ConnectionString);
             con.Open();
 
-            using SqlCommand command = new SqlCommand($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{snakeID}', '{name}',  '{score}', '{enterTime}', '{eaveTime}', '{gameID}' )", con);
+            using SqlCommand command = new SqlCommand($"INSERT INTO Players (ID, Name, MaxScore, EnterTime, LeaveTime, GameID) VALUES ('{snakeID}', '{name}',  '{score}', '{enterTime}', '{leaveTime}', '{gameID}' )", con);
             using SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -175,16 +175,17 @@ public class SQLQueries
     /// <summary>
     /// Updates the end time of the players who were part of a game that was just ended therefore all games have ended.
     /// </summary>
+    /// <param name="initialEndTime"> The initial end time of each player used to see if the endtime of a player needs to be updated.</param>
     /// <param name="endTime"> The given end time for the players. </param>
     /// <param name="gameID">The gameID of the game that just ended.</param>
-    public static void UpdateLeaveTimeAllPlayersInGame(string initalEndTime, string endTime, int gameID)
+    public static void UpdateLeaveTimeAllPlayersInGame(string initialEndTime, string endTime, int gameID)
     {
         try
         {
             using SqlConnection con = new SqlConnection(ConnectionString);
             con.Open();
 
-            using SqlCommand command = new SqlCommand($"UPDATE Players SET LeaveTime = '{endTime}' WHERE GameID = '{gameID}' AND LeaveTime = '{initalEndTime}' ", con);
+            using SqlCommand command = new SqlCommand($"UPDATE Players SET LeaveTime = '{endTime}' WHERE GameID = '{gameID}' AND LeaveTime = '{initialEndTime}' ", con);
             using SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {

@@ -30,4 +30,6 @@ List any peers (or other people) in the class (or outside for that matter) that 
 2. Jacob
 
 # References:
-    1. 
+      1. SQLDataReader - https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqldatareader?view=net-8.0-pp
+      2. ExectureScalar - https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.executescalar?view=net-8.0-pp
+      3. GET Requests - https://www.w3schools.com/tags/ref_httpmethods.asp

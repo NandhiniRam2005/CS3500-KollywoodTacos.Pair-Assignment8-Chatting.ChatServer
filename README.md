@@ -91,14 +91,14 @@ hours over.
                                                                                    Debugging:       1
                                                                                    Learning Tools:  6
 
-    3. Assignment 10: Snake DB and Web Server                Predicted Hours:            Actual Hours:   
+    3. Assignment 10: Snake DB and Web Server                Predicted Hours:  13          Actual Hours:   7
                                                              Joel Rodriguez:                                                                             
-                                                                                Hours Spent - 
-                                                                                   Effectively:     
-                                                                                   Debugging:       
-                                                                                   Learning Tools:  
+                                                                                Hours Spent - 7
+                                                                                   Effectively: 5    
+                                                                                   Debugging:   0.5    
+                                                                                   Learning Tools: 1.5 
                                                              Nandhini Ramanathan:                                                                             
-                                                                                Hours Spent - 
-                                                                                   Effectively:     
-                                                                                   Debugging:       
-                                                                                   Learning Tools:  
+                                                                                Hours Spent - 7
+                                                                                   Effectively: 5    
+                                                                                   Debugging:   0.5    
+                                                                                   Learning Tools:  1.5

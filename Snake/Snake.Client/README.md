@@ -34,6 +34,10 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
 7. Both our snake game and webserver run on port 11000 we were told that this is fine and expected.
 8. We were told in lecture that when the main client disconnects it should update the leave time of all the players who were still playing, we implemented this 
 9. We were told in lecture we only needed a disconnect button or something that checks when you x out or refresh. That is not what the assignment said on the week of thanksgiving so my partner and I implemented both stratgies.
+ We originally had a lot of tests in our database some where our data base code was not polished. We deleted them all so it's not a mess for you and we have 5 good working examples in the database now
+   you can look at those as well.
+10. We found certain cosmetic errors occured when disconnecting AI's, however there was a piazza post where a TA said that cosmetic errors or snake game errors did not matter. All that mattered was that our database was working as expected.
+11. We had this odd error where our database wouldn't update correctly 1 in every probably about 30 time on my machine. However when we ran it on my partners laptop about 30 times she never ran into the error than when I tried again the database never ran into the error again. So if you see a discrepancy on your end please close the client and relaunch it may be some odd error with the database.
 # Assignment Specific Topics
 Our assignment specific topics include creating a GUI that will connect to a networked Snake Server and display the status of the game.  
 We also send commands to the Snake Server representing the “moves” made by the player of the game. We also learned how to draw elements (in the draw method)

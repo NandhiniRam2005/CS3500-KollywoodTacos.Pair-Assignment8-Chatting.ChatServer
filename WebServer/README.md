@@ -18,6 +18,8 @@ Copyright:  CS 3500 and [Joel Rodriguez] - This work may not be copied for use i
    working then there was not anything that we were required to do. For example we did not use ORM's.
 4. We originally had a lot of tests in our database some where our data base code was not polished. We deleted them all so it's not a mess for you and we have 5 good working examples in the database now
    you can look at those as well.
+5. We found certain cosmetic errors occured when disconnecting AI's, however there was a piazza post where a TA said that cosmetic errors or snake game errors did not matter. All that mattered was that our database was working as expected.
+6. We had this odd error where our database wouldn't update correctly 1 in every probably about 30 time on my machine. However when we ran it on my partners laptop about 30 times she never ran into the error than when I tried again the database never ran into the error again. So if you see a discrepancy on your end please close the client and relaunch it may be some odd error with the database.
 
 # Assignment Specific Topics
 Our assignment specific topics include creating a Webserver that is connected to our data base to show the Snake Game's status oof the 

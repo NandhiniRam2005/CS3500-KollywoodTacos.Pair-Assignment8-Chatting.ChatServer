@@ -91,11 +91,11 @@ hours over.
                                                                                    Debugging:       1
                                                                                    Learning Tools:  6
 
-    3. Assignment 10: Snake DB and Web Server                Predicted Hours:  13          Actual Hours:   7
+    3. Assignment 10: Snake DB and Web Server                Predicted Hours:  13          Actual Hours:   11
                                                              Joel Rodriguez:                                                                             
-                                                                                Hours Spent - 7
+                                                                                Hours Spent - 11
                                                                                    Effectively: 5    
-                                                                                   Debugging:   0.5    
+                                                                                   Debugging:   4.5    
                                                                                    Learning Tools: 1.5 
                                                              Nandhini Ramanathan:                                                                             
                                                                                 Hours Spent - 7

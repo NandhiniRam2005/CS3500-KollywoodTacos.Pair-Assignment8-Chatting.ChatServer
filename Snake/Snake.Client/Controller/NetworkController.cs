@@ -11,6 +11,7 @@ using Microsoft.JSInterop;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using static System.Formats.Asn1.AsnWriter;
 
 /// <summary>
 /// Author:    Joel Rodriguez,  Nandhini Ramanathan, and Professor Jim.
@@ -39,11 +40,6 @@ public class NetworkController
     private int gameID;
 
     /// <summary>
-    /// Dictionary to store the maximum score achieved by each snake, indexed by snake ID.
-    /// </summary>
-    private Dictionary<int, int> snakesMaxScores = new Dictionary<int, int>();
-
-    /// <summary>
     /// Stores the time when the connection was established.
     /// </summary>
     private DateTime connectTime = DateTime.Now;
@@ -52,6 +48,16 @@ public class NetworkController
     /// Represents the current direction of the player's snake.
     /// </summary>
     private string snakeDirection = "Up";
+
+    /// <summary>
+    /// Keeps track of what ID's should be in the database.
+    /// </summary>
+    private int snakeCounter = 1;
+
+    /// <summary>
+    /// Keeps track of the max snake id in the game used for figuring out what snake to modify in the databse.
+    /// </summary>
+    private int maxSnakeID = 0;
 
     /// <summary>
     /// The initial endTime assigned to all players, put as a constant for ease of logic when disconnect multiple players.
@@ -98,6 +104,7 @@ public class NetworkController
         }
 
         var worldJSON = string.Empty;
+
         // Once connected to the server, proceed with game initialization
         if (ServerSnake.IsConnected)
         {
@@ -111,6 +118,7 @@ public class NetworkController
 
             // Add a new row to our games table by querying the database.
             gameID = SQLQueries.AddGameAndReturnID();
+            snakeCounter = 1;
 
             // Start a background task to continuously receive updates from the server
             await Task.Run(() =>
@@ -143,30 +151,52 @@ public class NetworkController
                                 string[] splitAfterNamePortion = splitNamePortion[1].Split("\"");
                                 string name = splitAfterNamePortion[0];
 
+                                if (snakeID > maxSnakeID)
+                                {
+                                    maxSnakeID = snakeID;
+                                }
+
                                 // If the snake is new then lets add a row to our database.
                                 if (!world.Snakes.ContainsKey(snakeID) && worldJSON.Contains("alive\":true"))
                                 {
-                                    snakesMaxScores.Add(snakeID, 0);
                                     string enterTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
                                     // Query the database to add a row to the players table.
-                                    SQLQueries.AddPlayer(snakeID, name, score, enterTime, intitalEndTime, gameID);
+                                    SQLQueries.AddPlayer(snakeCounter, name, score, enterTime, intitalEndTime, gameID);
+                                    snakeCounter++;
+                                    world.UpdateWorld(worldJSON);
+                                    Debug.WriteLine("World has found a new snake!");
                                 }
 
                                 // If the snake already exists in the database then update it if necessary.
                                 else if (worldJSON.Contains("alive\":true"))
                                 {
-                                    // Update the max score if applicable.
-                                    if (score > snakesMaxScores[snakeID])
-                                    {
-                                        snakesMaxScores[snakeID] = score;
+                                    int maxScore = world.Snakes[snakeID].MaxScore;
 
-                                        SQLQueries.UpdatePlayerMaxScore(score, snakeID, gameID);
+                                    // Update the max score if applicable.
+                                    if (score > world.Snakes[snakeID].MaxScore)
+                                    {
+                                        maxScore = score;
+
+                                        int possibleSnakeToChange = -1 * ((maxSnakeID - (snakeCounter - 1)) - snakeID);
+                                        if (possibleSnakeToChange > 0)
+                                        {
+                                            SQLQueries.UpdatePlayerMaxScore(score, possibleSnakeToChange, gameID);
+                                        }
+                                        else
+                                        {
+                                            SQLQueries.UpdatePlayerMaxScore(score, snakeID + 1, gameID);
+                                        }
                                     }
+
+                                    world.UpdateWorld(worldJSON);
+                                    world.Snakes[snakeID].MaxScore = maxScore;
                                 }
                             }
-
-                            world.UpdateWorld(worldJSON);
+                            else if(ServerSnake.IsConnected)
+                            {
+                                world.UpdateWorld(worldJSON);
+                            }
                         }
 
                         // If we see that dc is true update this players endtime.
@@ -182,7 +212,15 @@ public class NetworkController
                             string endTime = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
 
                             // Query the database to update the player's leave time.
-                            SQLQueries.UpdateLeaveTimeForPlayer(endTime, snakeID, gameID);
+                            int possibleSnakeToChange = -1 * ((maxSnakeID - (snakeCounter - 1)) - snakeID);
+                            if (possibleSnakeToChange > 0)
+                            {
+                                SQLQueries.UpdateLeaveTimeForPlayer(endTime, possibleSnakeToChange, gameID);
+                            }
+                            else
+                            {
+                                SQLQueries.UpdateLeaveTimeForPlayer(endTime, snakeID + 1, gameID);
+                            }
                         }
                     }
                 }
@@ -237,7 +275,10 @@ public class NetworkController
 
         lock (world)
         {
-            world.Snakes.Remove(world.WorldID);
+            foreach (Snake snake in world.Snakes.Values)
+            {
+                world.Snakes.Remove(snake.snake);
+            }
 
             // Query the data base to update player's leave time when client disconnects.
             SQLQueries.UpdateLeaveTimeAllPlayersInGame(intitalEndTime, endTime, gameID);
